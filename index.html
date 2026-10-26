@@ -1034,6 +1034,211 @@ window.App = (function () {
 
 </script>
 <script data-app>
+// Interactive Reading, extra parts per passage (by title):
+// ms = Complete the Passage: the sentence is inserted before `before`; o[0] is correct.
+// hl = Highlight the Answer: `a` is the exact phrase in the full passage that answers `q`.
+BANK.irx = {
+  "Sam's New Bike": {
+    ms: { before: "He rode around the lake", o: ["The park was full of families enjoying the sunshine.", "His sister does not like swimming in the sea.", "The shop sells bikes at very low prices.", "Sam wrote a long letter to his teacher."] },
+    hl: [{ q: "What color was the bike?", a: "It was blue" }, { q: "Why did Sam go home quickly?", a: "it started to rain" }] },
+  "The Library Card": {
+    ms: { before: "Soon the book club", o: ["The other members listened carefully and asked her questions.", "The library closes at six o'clock on Sundays.", "Her old school had a big swimming pool.", "Maya's mother works as a nurse in the city."] },
+    hl: [{ q: "How did Maya feel after moving?", a: "missed her old friends" }, { q: "Who suggested getting a library card?", a: "Her mother" }] },
+  "The Lost Wallet": {
+    ms: { before: "The owner, an old woman", o: ["When he rang the doorbell, an elderly woman opened the door.", "He bought a new wallet for himself the next day.", "The pavement was being repaired by workers.", "Daniel usually takes the bus to the office."] },
+    hl: [{ q: "What was inside the wallet?", a: "some money and an ID card" }, { q: "How long had the woman been looking for the wallet?", a: "all day" }] },
+  "The Chess Coach": {
+    ms: { before: "Slowly, his fear", o: ["Mr. Osei encouraged him to analyze his mistakes after every game.", "The community center also offers cooking classes.", "Leo's favorite sport has always been football.", "Chess was invented more than a thousand years ago."] },
+    hl: [{ q: "What was Leo worried about?", a: "everyone would play chess better than him" }, { q: "What talent did Leo discover?", a: "planning several moves ahead" }] },
+  "The Community Garden": {
+    ms: { before: "Within a year", o: ["Volunteers spent every weekend clearing the land and planting seeds.", "The factory had produced shoes for over fifty years.", "Ana works as a teacher at a local school.", "Most people in the city prefer to shop online."] },
+    hl: [{ q: "Why was the council unsure at first?", a: "worried about costs" }, { q: "How did the residents get the money?", a: "through local events" }] },
+  "Fast Fashion": {
+    ms: { before: "In response, some brands", o: ["Moreover, millions of tons of unwanted clothes end up in landfills every year.", "Cotton is also used to make some types of paper money.", "Many shoppers enjoy visiting stores with their friends.", "Fashion magazines were first published in the 1600s."] },
+    hl: [{ q: "How much water can one cotton shirt require?", a: "thousands of liters of water" }, { q: "What have some brands started doing?", a: "repair services and use recycled materials" }] },
+  "The Sleep Economy": {
+    ms: { before: "Ironically, experts", o: ["This has led some doctors to warn consumers against trusting every advertisement.", "Most people dream several times every night.", "Herbal tea is especially popular in the United Kingdom.", "Mattresses were once filled with straw or feathers."] },
+    hl: [{ q: "What do consumers spend billions on?", a: "smart mattresses, sleep-tracking apps and herbal supplements" }, { q: "When should people avoid caffeine?", a: "in the afternoon" }] },
+  "The Paradox of Choice": {
+    ms: { before: "Researchers", o: ["Those faced with dozens of options, by contrast, frequently left without buying anything.", "Psychology became an academic discipline in the nineteenth century.", "Supermarkets often place sweets near the checkout.", "Some shoppers prefer to pay in cash rather than by card."] },
+    hl: [{ q: "Which shoppers were more likely to buy something?", a: "shoppers who were offered a smaller selection of products" }, { q: "Why do people feel less satisfied after choosing?", a: "they ruminate about the alternatives they rejected" }] }
+};
+
+</script>
+<script data-app>
+// Interactive Reading in DET order: Complete the Sentences → Complete the Passage →
+// Highlight the Answer ×2 → Identify the Idea → Title the Passage.
+(function () {
+  const { esc, shuffle, pick, frame, record, startTimer, stopTimer } = App;
+  const $ = id => document.getElementById(id);
+  const words = s => String(s).toLowerCase().match(/[a-z0-9']+/g) || [];
+
+  const css = document.createElement("style");
+  css.dataset.inj = "1";
+  css.textContent = `
+  .slot{display:inline-block;min-width:60%;border:2px dashed #84d8ff;border-radius:10px;background:var(--blue-soft);color:var(--blue-dark);padding:2px 10px;font-weight:700;line-height:1.6}
+  .slot.ok{border-style:solid;border-color:#a5ed6e;background:var(--green-soft);color:var(--green-dark)}
+  .slot.bad{border-style:solid;border-color:#ffb2b2;background:var(--red-soft);color:var(--red-dark)}
+  .pass-t.hlmode{cursor:text;user-select:text;-webkit-user-select:text}
+  .pass-t.hlmode::selection,.pass-t.hlmode *::selection{background:#ffe58f;color:var(--ink)}
+  .pass-t mark{border-radius:4px;padding:1px 2px}
+  .pass-t mark.ok{background:#b8f28a}
+  .pass-t mark.you{background:#fff3b0}
+  .pick{border:2px dashed var(--line);border-radius:12px;padding:12px;min-height:56px;color:var(--muted);margin:10px 0}
+  .pick.has{border-style:solid;border-color:#ffe58f;background:#fffbe6;color:var(--ink)}`;
+  document.head.appendChild(css);
+
+  // Selected text counts as correct when it covers most of the key phrase and is not much longer.
+  function hlOk(sel, key) {
+    const kw = words(key), sw = words(sel);
+    if (!kw.length || !sw.length) return false;
+    const hit = kw.filter(w => sw.includes(w)).length / kw.length;
+    return hit >= 0.6 && sw.length <= kw.length * 3 + 4;
+  }
+
+  App.tasks.ireading = {
+    make(level, used) {
+      const seen = App.S.seen, B = BANK.ireading;
+      const order = [0, -1, 1, -2, 2, -3, 3, -4, 4].map(d => level + d).filter(l => B[l] && B[l].length);
+      for (const pass of [x => !used.has(x.title) && !seen.has(x.title), x => !used.has(x.title), () => true])
+        for (const l of order) { const f = B[l].filter(pass); if (f.length) { const it = pick(f); used.add(it.title); return it; } }
+    },
+    render(it) {
+      const x = BANK.irx[it.title];
+      const sel = Array(it.g.length).fill(""), opts = it.g.map(g => shuffle(g));
+      const plain = it.text.replace(/\{(\d)\}/g, (_, n) => it.g[n - 1][0]);
+      const full = x && plain.includes(x.ms.before) ? plain.replace(x.ms.before, x.ms.o[0] + " " + x.ms.before) : plain;
+      const qs = it.q.filter(q => q.type !== "detail").map(q => ({ ...q, order: shuffle(q.o.map((_, k) => k)) }));
+      const qAns = qs.map(() => null);
+      const res = { gaps: [], qs: [] };
+      let gapRes = null, step = "gaps", msPick = null, msOrder = x ? shuffle(x.ms.o.map((_, k) => k)) : [], hlI = 0, hlSel = "";
+
+      const gapText = () => esc(it.text).replace(/\{(\d)\}/g, (_, n) => {
+        const k = n - 1, st = gapRes ? (gapRes[k] ? "color:var(--green-dark)" : "color:var(--red-dark)") : "";
+        return `<span class="gap" style="${st}"><em>${n}</em>${esc(sel[k] || "")}</span>`;
+      });
+      const marked = (text, phrase, cls) => {
+        const i = phrase ? text.indexOf(phrase) : -1;
+        return i < 0 ? esc(text) : esc(text.slice(0, i)) + `<mark class="${cls}">${esc(phrase)}</mark>` + esc(text.slice(i + phrase.length));
+      };
+      const setPassage = html => { $("pt").innerHTML = html; };
+      const right = html => { const q = document.querySelector(".qs"); q.innerHTML = html; q.scrollTop = 0; };
+      const go = fn => () => { $("fb").innerHTML = ""; fn(); };
+
+      frame({ split: true, timerLabel: "for this passage", body: `<div class="pass"><div class="pass-l">Passage · ${esc(it.title)}</div><div class="pass-t" id="pt">${gapText()}</div></div><div class="qs"></div>` });
+      startTimer(App.S.sec.time, finishAll);
+
+      // 1. Complete the Sentences
+      right(`<h3>Select the best option for each missing word</h3>${opts.map((o, k) => `<label class="sel-row" id="row${k}"><em>${k + 1}</em><select id="s${k}" aria-label="gap ${k + 1}"><option value="">Select a word</option>${o.map(w => `<option>${esc(w)}</option>`).join("")}</select></label>`).join("")}`);
+      opts.forEach((o, k) => $("s" + k).onchange = e => { sel[k] = e.target.value; setPassage(gapText()); $("submit").disabled = sel.some(v => !v); });
+      $("submit").onclick = checkGaps;
+
+      function checkGaps() {
+        if (step !== "gaps") return;
+        gapRes = sel.map((v, k) => v === it.g[k][0]);
+        gapRes.forEach((ok, k) => { $("row" + k).classList.add(ok ? "ok" : "bad"); $("s" + k).disabled = true; });
+        res.gaps = it.g.map((g, k) => ({ w: g[0], you: sel[k] || "—", ok: gapRes[k] }));
+        setPassage(gapText()); $("submit").disabled = true; step = "gaps-done";
+        const n = gapRes.filter(Boolean).length;
+        App.feedback(n === gapRes.length, `${n} из ${gapRes.length}: ${it.g.map((g, k) => gapRes[k] ? null : `${k + 1} — ${esc(g[0])}`).filter(Boolean).join(", ")}`, go(x ? passageStep : ideaStep));
+      }
+
+      // 2. Complete the Passage
+      function passageStep() {
+        step = "ms";
+        const i = plain.indexOf(x.ms.before);
+        setPassage(esc(plain.slice(0, i)) + `<span class="slot" id="slot">Select the best sentence</span> ` + esc(plain.slice(i)));
+        right(`<h3>Select the best sentence to fill in the blank in the passage</h3>${msOrder.map(k => `<button class="opt" data-m="${k}">${esc(x.ms.o[k])}</button>`).join("")}`);
+        document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => {
+          if (step !== "ms") return;
+          msPick = +b.dataset.m;
+          document.querySelectorAll("[data-m]").forEach(o => o.classList.toggle("sel", o === b));
+          $("slot").textContent = x.ms.o[msPick]; $("submit").disabled = false;
+        });
+        $("submit").disabled = true; $("submit").onclick = checkMs;
+      }
+      function checkMs() {
+        if (step !== "ms") return; step = "ms-done";
+        const ok = msPick === 0;
+        document.querySelectorAll("[data-m]").forEach(o => { const k = +o.dataset.m; if (k === 0) o.classList.add("ok"); else if (k === msPick) o.classList.add("bad"); });
+        $("slot").classList.add(ok ? "ok" : "bad"); $("submit").disabled = true;
+        res.qs.push({ q: "Complete the passage", type: "passage", you: msPick === null ? "—" : x.ms.o[msPick], right: x.ms.o[0], ok });
+        App.feedback(ok, esc(x.ms.o[0]), go(hlStep));
+      }
+
+      // 3–4. Highlight the Answer
+      function hlStep() {
+        step = "hl"; hlSel = "";
+        const h = x.hl[hlI];
+        setPassage(esc(full)); $("pt").classList.add("hlmode");
+        right(`<div class="pass-l">Question ${hlI + 1} of ${x.hl.length}</div><h3>Click and drag text to highlight the answer to the question below</h3>
+          <div style="font-size:19px;font-weight:700;margin-bottom:6px">${esc(h.q)}</div>
+          <div class="pick" id="pick">Выделите ответ мышкой (или пальцем) в тексте слева</div>`);
+        $("submit").disabled = true; $("submit").onclick = checkHl;
+      }
+      document.addEventListener("selectionchange", onSel);
+      function onSel() {
+        if (step !== "hl" || !$("pt")) return;
+        const s = window.getSelection();
+        if (!s || !s.rangeCount || !$("pt").contains(s.anchorNode)) return;
+        const t = s.toString().trim();
+        if (!t) return;
+        hlSel = t;
+        const p = $("pick"); p.textContent = "«" + t + "»"; p.classList.add("has");
+        $("submit").disabled = false;
+      }
+      function checkHl() {
+        if (step !== "hl") return; step = "hl-done";
+        const h = x.hl[hlI], ok = hlOk(hlSel, h.a);
+        window.getSelection().removeAllRanges(); $("pt").classList.remove("hlmode");
+        setPassage(marked(full, h.a, "ok")); $("submit").disabled = true;
+        res.qs.push({ q: h.q, type: "highlight", you: hlSel || "—", right: h.a, ok });
+        App.feedback(ok, esc(h.a), go(() => { hlI++; if (hlI < x.hl.length) hlStep(); else ideaStep(); }));
+      }
+
+      // 5–6. Identify the Idea, Title the Passage
+      function ideaStep() {
+        step = "qs"; setPassage(esc(full));
+        right(qs.map((q, qi) => `<h3 style="font-size:20px;margin-top:${qi ? 28 : 0}px">${esc(q.q)}</h3>${q.order.map(oi => `<button class="opt" data-q="${qi}" data-o="${oi}">${esc(q.o[oi])}</button>`).join("")}`).join(""));
+        document.querySelectorAll("[data-q]").forEach(b => b.onclick = () => {
+          if (step !== "qs") return;
+          const qi = +b.dataset.q; qAns[qi] = +b.dataset.o;
+          document.querySelectorAll(`[data-q="${qi}"]`).forEach(o => o.classList.toggle("sel", o === b));
+          $("submit").disabled = qAns.some(v => v === null);
+        });
+        $("submit").disabled = true; $("submit").onclick = checkQs;
+      }
+      function checkQs() {
+        if (step !== "qs") return; step = "done"; stopTimer();
+        document.querySelectorAll("[data-q]").forEach(b => { const q = qs[+b.dataset.q], o = +b.dataset.o; if (o === q.a) b.classList.add("ok"); else if (qAns[+b.dataset.q] === o) b.classList.add("bad"); });
+        qs.forEach((q, qi) => res.qs.push({ q: q.q, type: q.type, you: qAns[qi] === null ? "—" : q.o[qAns[qi]], right: q.o[q.a], ok: qAns[qi] === q.a }));
+        $("submit").disabled = true;
+        const okAll = qs.every((q, qi) => qAns[qi] === q.a);
+        App.feedback(okAll, qs.map((q, qi) => qAns[qi] === q.a ? null : esc(q.o[q.a])).filter(Boolean).join("<br>"), go(save));
+      }
+
+      // Time ran out: whatever is unanswered counts as wrong.
+      function finishAll() {
+        if (!gapRes) { gapRes = sel.map((v, k) => v === it.g[k][0]); res.gaps = it.g.map((g, k) => ({ w: g[0], you: sel[k] || "—", ok: gapRes[k] })); }
+        const have = new Set(res.qs.map(q => q.type + q.q));
+        if (x && !have.has("passageComplete the passage")) res.qs.push({ q: "Complete the passage", type: "passage", you: "—", right: x.ms.o[0], ok: false });
+        if (x) x.hl.forEach(h => { if (!have.has("highlight" + h.q)) res.qs.push({ q: h.q, type: "highlight", you: "—", right: h.a, ok: false }); });
+        qs.forEach(q => { if (!have.has(q.type + q.q)) res.qs.push({ q: q.q, type: q.type, you: "—", right: q.o[q.a], ok: false }); });
+        save();
+      }
+      function save() {
+        if (step === "saved") return; step = "saved"; stopTimer();
+        document.removeEventListener("selectionchange", onSel);
+        const all = res.gaps.map(g => g.ok).concat(res.qs.map(q => q.ok)), right = all.filter(Boolean).length, acc = right / all.length;
+        record({ type: "ireading", ok: acc >= 0.75 ? 1 : acc < 0.5 ? -1 : 0, acc, q: it.title, gaps: res.gaps, qs: res.qs, right, total: all.length });
+        App.next();
+      }
+    }
+  };
+})();
+
+</script>
+<script data-app>
 // Writing tasks: Write About the Photo, Writing Sample, Interactive Writing, plus text metrics.
 (function () {
   const { tasks, esc, pick, frame, record, next, startTimer, stopTimer } = App;
@@ -1253,6 +1458,8 @@ App.P = (x, y, skin, shirt, s = 1) =>
       const gapMiss = L.flatMap(e => e.gaps.filter(g => !g.ok)), qMiss = L.flatMap(e => e.qs.filter(q => !q.ok));
       if (gapMiss.length) r.push(`<b>Сочетаемость слов.</b> Ошибки в пропусках: ${gapMiss.map(g => `${esc(g.you)} → <b>${esc(g.w)}</b>`).join(", ")}. Проверяйте, подходит ли слово по смыслу и грамматически (часть речи, предлог после него).`);
       if (qMiss.some(q => q.type === "idea" || q.type === "title")) r.push(`<b>Главная мысль.</b> Правильный ответ охватывает весь текст, а не одну деталь. Перечитайте первое и последнее предложения.`);
+      if (qMiss.some(q => q.type === "passage")) r.push(`<b>Недостающее предложение.</b> Читайте предложения до и после пропуска: правильный вариант продолжает ту же мысль и связан с ними по смыслу (местоимения, связки, тема).`);
+      if (qMiss.some(q => q.type === "highlight")) r.push(`<b>Поиск ответа.</b> Найдите в тексте ключевое слово из вопроса и выделите только ту часть предложения, которая прямо отвечает на вопрос, — не всё предложение целиком.`);
       if (qMiss.some(q => q.type === "detail")) r.push(`<b>Детали.</b> Найдите в тексте ключевое слово из вопроса и прочитайте предложение вокруг него.`);
     }
     if (["photo", "wsample", "iwriting"].includes(id)) {
@@ -2342,7 +2549,7 @@ VOCAB.push(
     if (id === "ireading") {
       const gaps = L.flatMap(e => e.gaps), qs = L.flatMap(e => e.qs), g = gaps.filter(x => x.ok).length;
       (g / gaps.length >= 0.7 ? good : bad).push(`Слова в пропусках: ${g} из ${gaps.length} (${pct(g, gaps.length)}%).`);
-      const kind = { idea: "главную мысль", detail: "детали", title: "заголовок" };
+      const kind = { passage: "недостающее предложение", highlight: "поиск ответа в тексте", idea: "главную мысль", detail: "детали", title: "заголовок" };
       Object.keys(kind).forEach(k => {
         const q = qs.filter(x => x.type === k); if (!q.length) return;
         const n = q.filter(x => x.ok).length;
