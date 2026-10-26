@@ -1,0 +1,2392 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0">
+<title>English Test Practice Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
+<style>
+/* Layout: DET-style practice hub — sidebar + task cards; tasks open in a centered white exam card on a grey ground */
+:root{
+  --ground:#f0f0f0; --card:#ffffff; --ink:#4b4b4b; --muted:#777777; --faint:#afafaf;
+  --line:#e5e5e5; --soft:#f7f7f7;
+  --blue:#1cb0f6; --blue-dark:#1899d6; --blue-soft:#ddf4ff;
+  --green:#58cc02; --green-dark:#58a700; --green-soft:#d7ffb8;
+  --red:#ff4b4b; --red-dark:#ea2b2b; --red-soft:#ffdfe0;
+  --gold:#ffc800;
+  --font:"Nunito","Varela Round","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5}
+button{font-family:inherit}
+.hidden{display:none!important}
+
+/* ---------- top bar ---------- */
+.topbar{background:var(--card);border-bottom:2px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--card)}
+.topbar-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding-block:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.logo{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px;color:var(--green);letter-spacing:-.3px}
+.logo-mark{width:30px;height:30px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff;font-size:15px;font-weight:900}
+.avatar{width:32px;height:32px;border-radius:50%;background:#9069cd;color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px}
+
+/* ---------- hub ---------- */
+.hub{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;
+  padding-block:28px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.side{display:flex;flex-direction:column;gap:6px}
+.side-item{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;border:2px solid transparent;
+  font-weight:800;font-size:14px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.side-item.active{background:var(--blue-soft);border-color:#84d8ff;color:var(--blue)}
+.side-ico{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:15px}
+.main{min-width:0}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-bottom:28px;border-bottom:2px solid var(--line);margin-bottom:28px}
+.hero h1{font-size:30px;line-height:1.2;font-weight:800;margin:0 0 8px;text-wrap:balance}
+.hero p{margin:0 0 18px;color:var(--muted);max-width:52ch}
+.hero-art{flex:0 0 190px;height:120px;border-radius:16px;background:linear-gradient(160deg,var(--green-soft),#e9ffd9);position:relative;overflow:hidden}
+.hero-art .scr{position:absolute;left:34px;top:22px;width:120px;height:76px;background:var(--blue-soft);border:6px solid #cfcfcf;border-radius:8px}
+.hero-art .scr::after{content:"";position:absolute;left:30px;top:16px;width:40px;height:22px;border:5px solid var(--gold);border-bottom:none;border-radius:40px 40px 0 0}
+.hero-art .base{position:absolute;left:18px;bottom:14px;width:154px;height:8px;border-radius:6px;background:#ffd970}
+h2.sec{font-size:22px;font-weight:800;margin:0 0 14px}
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--line);margin-bottom:20px;overflow-x:auto}
+.tab{flex:1;min-width:96px;background:none;border:none;padding:12px 8px;font-weight:800;font-size:14px;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--faint);border-bottom:4px solid transparent;margin-bottom:-2px;cursor:pointer}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab:focus-visible,.btn:focus-visible,.task:focus-visible,.choice:focus-visible{outline:3px solid #84d8ff;outline-offset:2px}
+.task-list{display:flex;flex-direction:column;gap:14px}
+.task{display:flex;align-items:center;gap:20px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;
+  padding:20px 22px;cursor:pointer;color:inherit}
+.task:hover{background:var(--soft)}
+.task-ico{flex:0 0 52px;height:52px;display:grid;place-items:center}
+.task-body{flex:1;min-width:0}
+.task-name{font-weight:800;font-size:18px}
+.task-desc{color:var(--muted);font-size:14px;margin:2px 0 8px}
+.task-meta{display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:12px;border-radius:8px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--gold);border-radius:8px}
+.task-count{font-size:14px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;min-width:34px;text-align:right}
+.skill-chip{font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--blue);background:var(--blue-soft);border-radius:8px;padding:2px 8px}
+.skill-chip.w{color:#ce82ff;background:#f6e8ff}
+
+/* ---------- buttons ---------- */
+.btn{border:none;border-radius:12px;padding:13px 26px;font-weight:800;font-size:15px;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;
+  background:var(--blue);color:#fff;box-shadow:0 4px 0 var(--blue-dark);transition:transform .05s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--blue-dark)}
+.btn.green{background:var(--green);box-shadow:0 4px 0 var(--green-dark)}
+.btn.red{background:var(--red);box-shadow:0 4px 0 var(--red-dark)}
+.btn.ghost{background:var(--card);color:var(--blue);border:2px solid var(--line);box-shadow:0 2px 0 var(--line)}
+.btn:disabled{background:var(--line);color:var(--faint);box-shadow:none;cursor:default}
+
+/* ---------- exam card ---------- */
+.exam{min-height:100%;display:flex;align-items:flex-start;justify-content:center;padding-block:40px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ecard{width:100%;max-width:960px;background:var(--card);border-radius:8px;display:flex;flex-direction:column;min-height:640px;position:relative;overflow:hidden}
+.ehead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:24px 40px;border-bottom:2px solid var(--line)}
+.timer{display:flex;align-items:center;gap:8px;font-size:18px}
+.timer b{font-size:24px;font-variant-numeric:tabular-nums}
+.timer.low b{color:var(--red-dark)}
+.ehead-r{display:flex;align-items:center;gap:16px}
+.lvl{display:flex;gap:4px;align-items:flex-end}
+.lvl i{width:8px;border-radius:3px;background:var(--line)}
+.lvl i.on{background:var(--blue)}
+.qcount{font-size:14px;color:var(--muted);font-weight:700}
+.close{background:none;border:none;font-size:30px;line-height:1;color:var(--faint);cursor:pointer;padding:4px 8px}
+.ebody{flex:1;padding:48px 40px;display:flex;flex-direction:column;align-items:center}
+.ebody.split{padding:0;flex-direction:row;align-items:stretch}
+.qtitle{font-size:28px;font-weight:800;margin:0 0 36px;text-align:center;text-wrap:balance}
+.efoot{border-top:2px solid var(--line);padding:24px 40px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.efoot .hint{color:var(--muted);font-size:14px}
+
+/* feedback panel */
+.fb{position:absolute;left:0;right:0;bottom:0;padding:28px 40px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-radius:0 0 8px 8px}
+.fb.ok{background:var(--green-soft);color:var(--green-dark)}
+.fb.bad{background:var(--red-soft);color:var(--red-dark)}
+.fb-t{font-size:24px;font-weight:800;display:flex;align-items:center;gap:10px}
+.fb-dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:15px}
+.fb.ok .fb-dot{background:var(--green-dark)} .fb.bad .fb-dot{background:var(--red-dark)}
+.fb-a{font-size:18px;margin-top:4px}
+.fb-a strong{font-weight:800}
+
+/* read and select */
+.word{font-size:48px;margin:0 0 48px}
+.yn{display:flex;gap:18px}
+.choice{width:136px;height:132px;border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;background:var(--card);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:20px;color:var(--ink)}
+.choice svg{width:48px;height:48px}
+.choice:hover{background:var(--soft)}
+.choice.sel{border-color:#84d8ff;background:var(--blue-soft)}
+
+/* letter boxes */
+.sent{font-size:20px;line-height:2.4;max-width:820px;text-align:left}
+.lb{display:inline-flex;vertical-align:middle;margin:0 4px}
+.lb input,.lb span{width:24px;height:32px;border:2px solid var(--line);border-left-width:1px;border-right-width:1px;text-align:center;font:inherit;font-size:18px;
+  color:var(--ink);background:var(--soft);padding:0;line-height:28px}
+.lb span{background:var(--card)}
+.lb>*:first-child{border-left-width:2px;border-radius:8px 0 0 8px}
+.lb>*:last-child{border-right-width:2px;border-radius:0 8px 8px 0}
+.lb input:focus{outline:none;border-color:var(--blue);background:var(--card);box-shadow:inset 0 0 0 1px var(--blue)}
+.lb.ok input{background:var(--green-soft);border-color:#a5ed6e;color:var(--green-dark)}
+.lb.bad input{background:var(--red-soft);border-color:#ffb2b2;color:var(--red-dark)}
+.ctitle{font-weight:800;font-size:18px;text-align:center;margin-bottom:8px}
+.ctext{font-size:18px;line-height:2.5}
+
+/* interactive reading */
+.pass{flex:1 1 50%;min-width:0;background:var(--soft);border-right:2px solid var(--line);padding:40px;overflow:auto;max-height:560px}
+.pass-l{font-size:14px;font-weight:800;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.pass-t{font-size:18px;line-height:2.2}
+.gap{display:inline-block;min-width:130px;border-bottom:2px solid var(--line);padding:0 6px;line-height:1.6;font-weight:700;color:var(--blue)}
+.gap em{font-style:normal;display:inline-block;border:2px solid var(--line);border-radius:6px;font-size:12px;color:var(--muted);padding:0 6px;margin-right:6px;line-height:18px;font-weight:800}
+.hl{background:#fff3b0;border-radius:4px}
+.qs{flex:1 1 50%;min-width:0;padding:40px;overflow:auto;max-height:560px}
+.qs h3{font-size:24px;font-weight:800;margin:0 0 20px;line-height:1.3;text-wrap:balance}
+.sel-row{display:flex;align-items:center;gap:12px;border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;padding:6px 12px;margin-bottom:12px;background:var(--card)}
+.sel-row em{font-style:normal;border:2px solid var(--line);border-radius:6px;font-size:13px;font-weight:800;color:var(--muted);padding:0 7px}
+.sel-row select{flex:1;border:none;background:transparent;font:inherit;font-size:17px;color:var(--ink);padding:8px 0;cursor:pointer}
+.sel-row select:focus{outline:none}
+.sel-row.ok{border-color:#a5ed6e;background:var(--green-soft)} .sel-row.bad{border-color:#ffb2b2;background:var(--red-soft)}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;padding:14px 16px;margin-bottom:12px;background:var(--card);
+  font:inherit;font-size:17px;color:var(--ink);cursor:pointer}
+.opt:hover{background:var(--soft)}
+.opt.sel{border-color:#84d8ff;background:var(--blue-soft)}
+.opt.ok{border-color:#a5ed6e;background:var(--green-soft)} .opt.bad{border-color:#ffb2b2;background:var(--red-soft)}
+
+/* writing */
+.wwrap{display:flex;gap:28px;width:100%;max-width:880px;align-items:stretch}
+.wimg{flex:0 0 380px;max-width:100%;border-radius:12px;overflow:hidden;background:var(--soft)}
+.wimg svg{display:block;width:100%;height:auto}
+.wprompt{flex:0 0 340px;font-size:19px;line-height:1.6;background:var(--soft);border-radius:12px;padding:20px}
+.wbox{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.wbox textarea{flex:1;min-height:260px;width:100%;resize:vertical;border:2px solid var(--line);border-radius:12px;background:var(--soft);padding:14px;font:inherit;font-size:17px;color:var(--ink)}
+.wbox textarea:focus{outline:none;border-color:#84d8ff;background:var(--card)}
+.wc{font-size:14px;color:var(--muted);font-weight:700;text-align:right}
+
+/* results */
+.res{max-width:880px;margin:0 auto;padding-block:36px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.res-card{background:var(--card);border-radius:16px;border:2px solid var(--line);padding:28px;margin-bottom:20px}
+.res-top{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+.score{width:150px;height:150px;border-radius:50%;border:10px solid var(--green);display:grid;place-items:center;text-align:center;flex:0 0 auto}
+.score b{display:block;font-size:44px;line-height:1;font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums}
+.score span{font-size:13px;color:var(--muted);font-weight:700}
+.res-sum{flex:1;min-width:220px}
+.res-sum h1{font-size:28px;margin:0 0 6px;font-weight:800}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.stat{border:2px solid var(--line);border-radius:12px;padding:8px 14px;font-weight:700;font-size:14px}
+.stat b{font-size:20px;display:block;font-variant-numeric:tabular-nums}
+.path{display:flex;align-items:flex-end;gap:6px;height:70px;margin-top:8px}
+.path i{flex:1;max-width:34px;border-radius:6px 6px 0 0;position:relative}
+.path i.ok{background:var(--green)} .path i.bad{background:var(--red)}
+.res h2{font-size:20px;margin:0 0 14px;font-weight:800}
+.rec{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.rec li{background:var(--blue-soft);border-radius:12px;padding:12px 16px}
+.rec li b{color:var(--blue-dark)}
+.rev{border-top:2px solid var(--line);padding:14px 0;display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px}
+.rev:first-of-type{border-top:none}
+.rev-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px}
+.rev-dot.ok{background:var(--green)} .rev-dot.bad{background:var(--red)} .rev-dot.w{background:#ce82ff}
+.rev-q{font-weight:700}
+.rev-a{font-size:15px;color:var(--muted);margin-top:2px}
+.rev-a .you-bad{color:var(--red-dark);font-weight:700;text-decoration:line-through}
+.rev-a .you-ok{color:var(--green-dark);font-weight:700}
+.rev-a .right{color:var(--green-dark);font-weight:700}
+.rev-tip{font-size:14px;background:var(--soft);border-radius:8px;padding:6px 10px;margin-top:6px}
+.lvl-tag{font-size:12px;font-weight:800;color:var(--muted);border:2px solid var(--line);border-radius:6px;padding:0 6px;margin-left:6px}
+.ai{white-space:pre-wrap;font-size:16px;line-height:1.6}
+.ai-box{background:#f6e8ff;border-radius:12px;padding:16px;margin-top:10px}
+.essay{white-space:pre-wrap;background:var(--soft);border-radius:12px;padding:14px;font-size:16px}
+.res-actions{display:flex;gap:14px;flex-wrap:wrap}
+
+@media (max-width:820px){
+  .hub{grid-template-columns:1fr;gap:16px}
+  .side{flex-direction:row;overflow-x:auto}
+  .side-item{padding:8px 12px;font-size:12px;white-space:nowrap}
+  .hero-art{display:none}
+  .exam{padding-block:0;padding-left:0;padding-right:0}
+  .ecard{border-radius:0;min-height:100vh}
+  .ehead,.efoot{padding:16px}
+  .ebody{padding:28px 16px}
+  .ebody.split{flex-direction:column}
+  .pass{border-right:none;border-bottom:2px solid var(--line);max-height:none;padding:20px 16px}
+  .qs{max-height:none;padding:20px 16px 140px}
+  .qtitle{font-size:22px;margin-bottom:24px}
+  .word{font-size:40px}
+  .sent,.ctext{font-size:17px}
+  .wwrap{flex-direction:column}
+  .wimg,.wprompt{flex:none}
+  .fb{padding:18px 16px;flex-direction:column;align-items:stretch}
+  .task{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="app"></div>
+<script data-app>
+// Item banks, part 1. Every bank is indexed by level 1..5 (1 = easiest).
+window.BANK = window.BANK || {};
+
+// Read and Select: is this a real English word? r = real words, f = invented words.
+BANK.select = {
+  1: { r: ["water", "happy", "table", "river", "mother", "window", "friend", "yellow", "school", "listen"],
+       f: ["brane", "fosh", "dinter", "clom", "pask", "sheb", "mibble", "trock", "wunder", "glain"] },
+  2: { r: ["careful", "journey", "weather", "borrow", "empty", "village", "honest", "kitchen", "promise", "thirsty"],
+       f: ["flendy", "warrow", "plimet", "crostle", "harnish", "bleaming", "sorrent", "trumble", "dorvish", "kettry"] },
+  3: { r: ["consider", "frequent", "entire", "ancient", "behavior", "thorough", "rescue", "abundant", "convenient", "estimate"],
+       f: ["frellant", "conspent", "deliance", "prastical", "ambirous", "tremulate", "unvirtant", "malticate", "obstrain", "pellucent"] },
+  4: { r: ["reluctant", "scrutiny", "inevitable", "deteriorate", "meticulous", "ambiguous", "persevere", "plausible", "eloquent", "mitigate"],
+       f: ["refluctant", "sarcolent", "obsiliate", "mendacure", "contrivial", "plenitate", "prevocative", "detrimony", "insolvate", "fervilous"] },
+  5: { r: ["ubiquitous", "ephemeral", "obfuscate", "perfunctory", "recalcitrant", "sycophant", "lugubrious", "quixotic", "pernicious", "obsequious"],
+       f: ["perfidulous", "obsequate", "recondify", "exiguant", "ephemious", "quindescent", "terpsical", "salubrent", "pervicuous", "lacrimonate"] }
+};
+
+// Russian glosses for real words, shown in the review.
+BANK.gloss = {
+  water: "вода", happy: "счастливый", table: "стол", river: "река", mother: "мама", window: "окно", friend: "друг", yellow: "жёлтый", school: "школа", listen: "слушать",
+  careful: "осторожный", journey: "путешествие", weather: "погода", borrow: "брать взаймы", empty: "пустой", village: "деревня", honest: "честный", kitchen: "кухня", promise: "обещание", thirsty: "испытывающий жажду",
+  consider: "рассматривать, считать", frequent: "частый", entire: "весь, целый", ancient: "древний", behavior: "поведение", thorough: "тщательный", rescue: "спасать", abundant: "обильный", convenient: "удобный", estimate: "оценивать",
+  reluctant: "неохотный", scrutiny: "тщательная проверка", inevitable: "неизбежный", deteriorate: "ухудшаться", meticulous: "дотошный", ambiguous: "двусмысленный", persevere: "упорствовать", plausible: "правдоподобный", eloquent: "красноречивый", mitigate: "смягчать",
+  ubiquitous: "вездесущий", ephemeral: "мимолётный", obfuscate: "запутывать", perfunctory: "поверхностный, формальный", recalcitrant: "непокорный", sycophant: "подхалим", lugubrious: "мрачный, скорбный", quixotic: "донкихотский, непрактичный", pernicious: "пагубный", obsequious: "раболепный"
+};
+
+// Fill in the Blanks: s = sentence with ___ for the gap, w = answer, p = given letters, t = hint in Russian.
+BANK.blanks = {
+  1: [
+    { s: "I drink a ___ of milk every morning.", w: "glass", p: "gl", t: "glass — стакан" },
+    { s: "My sister is ten ___ old.", w: "years", p: "ye", t: "ten years old — десять лет" },
+    { s: "Please close the ___ when you leave.", w: "door", p: "do", t: "door — дверь" },
+    { s: "It is very cold, so wear a ___ jacket.", w: "warm", p: "wa", t: "warm — тёплый" },
+    { s: "We usually eat ___ at seven o'clock.", w: "dinner", p: "din", t: "dinner — ужин" },
+    { s: "My brother can ___ very fast in the pool.", w: "swim", p: "sw", t: "swim — плавать" }
+  ],
+  2: [
+    { s: "She was tired, so she went to bed ___.", w: "early", p: "ea", t: "early — рано" },
+    { s: "Can you help me carry these ___ boxes?", w: "heavy", p: "he", t: "heavy — тяжёлый" },
+    { s: "The museum is ___ on Mondays.", w: "closed", p: "clo", t: "closed — закрыт" },
+    { s: "He ___ his umbrella and got wet in the rain.", w: "forgot", p: "for", t: "forget → forgot — забыл" },
+    { s: "I need to ___ some money from my brother.", w: "borrow", p: "bor", t: "borrow from — занять у кого-то" },
+    { s: "The train was ___, so we waited for an hour.", w: "late", p: "la", t: "late — опоздавший" }
+  ],
+  3: [
+    { s: "The company decided to ___ the number of employees.", w: "reduce", p: "red", t: "reduce — сокращать" },
+    { s: "Regular exercise can ___ your mood.", w: "improve", p: "imp", t: "improve — улучшать" },
+    { s: "Scientists are trying to find a ___ for the disease.", w: "cure", p: "cu", t: "a cure for — лекарство от" },
+    { s: "The weather forecast ___ heavy rain tomorrow.", w: "predicts", p: "pred", t: "predict — предсказывать (he/she/it → -s)" },
+    { s: "Please ___ a copy of your passport to the application.", w: "attach", p: "att", t: "attach to — прикрепить к" },
+    { s: "We are running ___ of time, so let's finish quickly.", w: "out", p: "o", t: "run out of — заканчиваться" }
+  ],
+  4: [
+    { s: "The new policy had a ___ impact on small businesses.", w: "significant", p: "signif", t: "significant — значительный" },
+    { s: "Her argument was ___, so the committee approved the plan.", w: "convincing", p: "convin", t: "convincing — убедительный" },
+    { s: "The evidence suggests that the theory is ___.", w: "accurate", p: "accu", t: "accurate — точный" },
+    { s: "Big cities often suffer from heavy traffic ___.", w: "congestion", p: "conges", t: "traffic congestion — пробки" },
+    { s: "Despite the delay, the team ___ to meet the deadline.", w: "managed", p: "man", t: "manage to do — суметь сделать" },
+    { s: "The government plans to ___ new rules on plastic packaging.", w: "introduce", p: "intro", t: "introduce rules — вводить правила" }
+  ],
+  5: [
+    { s: "The minister's remarks were deliberately ___.", w: "ambiguous", p: "ambig", t: "ambiguous — двусмысленный" },
+    { s: "The negotiations reached a ___ after weeks of discussion.", w: "stalemate", p: "stale", t: "stalemate — тупик" },
+    { s: "His ___ attention to detail impressed the editors.", w: "meticulous", p: "metic", t: "meticulous — дотошный" },
+    { s: "The drought ___ food shortages across the region.", w: "exacerbated", p: "exacer", t: "exacerbate — усугублять" },
+    { s: "She remained skeptical about the ___ of the project.", w: "feasibility", p: "feasib", t: "feasibility — осуществимость" },
+    { s: "The report was criticized for its ___ use of statistics.", w: "selective", p: "selec", t: "selective — избирательный" }
+  ]
+};
+
+</script>
+<script data-app>
+// Item banks, part 2. Read and Complete: [word] marks a gap; the first half of the word is shown.
+window.BANK = window.BANK || {};
+
+BANK.ctest = {
+  1: [
+    { title: "My Weekend", text: "On Saturday I usually get up late. I [have] breakfast with my [family] and then I [go] to the park [with] my dog. In the [afternoon] I meet my [friends] and we play [football]. On Sunday I [stay] at home and read [books]." },
+    { title: "A New Café", text: "There is a new café [near] my school. It is [small] but very nice. They [sell] coffee, tea and [cakes]. The chocolate cake is my [favorite]. The people who [work] there are very [friendly], so I [often] go there after [class]." }
+  ],
+  2: [
+    { title: "Learning to Cook", text: "Last year my brother decided to [learn] how to cook. At [first] he made a lot of [mistakes]. Once he [burned] the rice and the [kitchen] was full of smoke. But he [didn't] give up. Now he [cooks] dinner for the whole [family] every Friday, and [everyone] loves his pasta." },
+    { title: "City Bikes", text: "Many cities now have [public] bikes that anyone can [rent]. You pay with an [app] and leave the bike at [another] station when you [finish]. This is [cheaper] than a taxi and [better] for the environment. It also [helps] people stay active [during] the day." }
+  ],
+  3: [
+    { title: "Bees in Danger", text: "Bees are small, but they [play] a huge role in our lives. [They] pollinate many of the [plants] we eat, such as apples and [almonds]. In recent years, the [number] of bees has fallen in [many] countries. Scientists [believe] that pesticides and [habitat] loss are the main [causes] of this decline." },
+    { title: "Sleep and Memory", text: "Scientists have [found] that sleep plays an [important] role in memory. While we [sleep], the brain [organizes] information from the [day] and stores it for [later]. Students who sleep [well] before an exam often [remember] more than those who [study] all night." }
+  ],
+  4: [
+    { title: "Remote Work", text: "Over the past decade, remote work has [become] increasingly common. Many [employees] appreciate the flexibility it [offers], such as avoiding long [commutes]. However, some [companies] worry that working from [home] reduces collaboration. [Research] suggests that a hybrid [model] may provide the [best] balance between productivity and [wellbeing]." },
+    { title: "Urban Gardens", text: "Urban gardens are [appearing] on rooftops and empty [lots] in cities around the [world]. Besides [producing] fresh vegetables, they [reduce] heat in dense [neighborhoods] and give residents a [place] to meet. Critics [argue] that they cannot [replace] large farms, but [supporters] say that is not their purpose." }
+  ],
+  5: [
+    { title: "The Placebo Effect", text: "The placebo effect [refers] to improvements in health that [occur] even though a treatment has no [active] ingredient. Researchers [believe] that expectations [trigger] real physiological [responses]. Remarkably, some [studies] show that patients [benefit] even when they [know] they are taking a [placebo], which challenges [traditional] explanations." },
+    { title: "Language Extinction", text: "Linguists [estimate] that nearly half of the [world's] languages could [disappear] by the end of this [century]. When a language [vanishes], communities [lose] not only words but also [unique] ways of describing the [natural] world. [Documentation] projects attempt to [preserve] these languages before their [last] speakers pass [away]." }
+  ]
+};
+
+// Interactive Reading. g = gaps in order: [answer, distractors...]; questions after the gaps.
+BANK.ireading = {
+  2: [{
+    title: "The Library Card",
+    text: "When Maya moved to a new town, she felt {1} and missed her old friends. Her mother suggested that she {2} a library card. At the library, Maya met a librarian who {3} her a book club for teenagers. At first she was too {4} to speak, but after a few meetings she started to share her opinions. Soon the book club became the {5} of her week. Now she has new friends and reads more than {6}.",
+    g: [["lonely", "lucky", "proud", "hungry", "loud"],
+        ["get", "lose", "sell", "break", "draw"],
+        ["told", "said", "spoke", "talked", "asked"],
+        ["shy", "tall", "brave", "rich", "quick"],
+        ["highlight", "lowest", "outside", "reason", "middle"],
+        ["ever", "never", "always", "yet", "soon"]],
+    q: [
+      { type: "idea", q: "What is the main idea of the passage?", o: ["A book club helped Maya feel at home in a new town.", "Libraries in small towns are closing.", "Maya's mother works at a library.", "Teenagers do not like reading."], a: 0 },
+      { type: "detail", q: "Why did Maya not speak at the first meetings?", o: ["She was shy.", "She had not read the book.", "She did not speak English.", "The librarian told her not to."], a: 0 },
+      { type: "title", q: "Select the best title for the passage.", o: ["A New Chapter for Maya", "How to Become a Librarian", "Moving House Is Easy", "The History of Book Clubs"], a: 0 }
+    ]
+  }],
+  3: [{
+    title: "The Chess Coach",
+    text: "Leo {1} opened the door of the community center, worried that everyone would play chess better than him. The coach, an elderly man named Mr. Osei, greeted him so kindly that Leo's nerves were quickly {2}. During their weekly {3}, Leo realized he had a natural {4} for planning several moves ahead. Slowly, his fear of losing began to {5}, and his results in local tournaments {6}.",
+    g: [["hesitantly", "happily", "proudly", "loudly", "angrily"],
+        ["calmed", "raised", "tested", "broken", "shown"],
+        ["sessions", "seasons", "sections", "stations", "sensations"],
+        ["talent", "tension", "tenant", "tendency", "token"],
+        ["fade", "grow", "return", "appear", "spread"],
+        ["improved", "declined", "remained", "dropped", "failed"]],
+    q: [
+      { type: "idea", q: "What is the main idea of the passage?", o: ["A kind coach helped Leo gain confidence in chess.", "Leo decided to become a chess coach himself.", "Mr. Osei was a strict and demanding teacher.", "Leo's parents forced him to join a club."], a: 0 },
+      { type: "detail", q: "How did Leo feel when he arrived?", o: ["Worried that others played better.", "Excited to see his friends.", "Angry at the coach.", "Sure that he would win."], a: 0 },
+      { type: "title", q: "Select the best title for the passage.", o: ["Thinking Several Moves Ahead", "The Community Center Is Closing", "Why Chess Sets Are Expensive", "A Day Without School"], a: 0 }
+    ]
+  }],
+  4: [{
+    title: "Fast Fashion",
+    text: "Over the last twenty years, clothing has become cheaper and trends change faster than ever. This model, known as fast fashion, allows shoppers to {1} new outfits every few weeks. However, the industry has a {2} environmental cost: producing a single cotton shirt can {3} thousands of liters of water. In response, some brands now {4} repair services and use recycled materials. Critics say these steps are {5}, arguing that real change requires people to buy fewer clothes and {6} them for longer.",
+    g: [["purchase", "persuade", "postpone", "predict", "pretend"],
+        ["considerable", "considerate", "conditional", "comfortable", "confident"],
+        ["require", "acquire", "inquire", "retire", "admire"],
+        ["offer", "refuse", "afford", "ignore", "occupy"],
+        ["insufficient", "inexpensive", "invisible", "inevitable", "incredible"],
+        ["wear", "waste", "throw", "sell", "lose"]],
+    q: [
+      { type: "idea", q: "What is the main idea of the passage?", o: ["Fast fashion is cheap but harms the environment, and small fixes may not be enough.", "Cotton shirts are the best clothes for hot weather.", "Brands have completely solved fashion's environmental problems.", "Shoppers should follow trends more closely."], a: 0 },
+      { type: "detail", q: "According to critics, what is needed for real change?", o: ["Buying fewer clothes and keeping them longer.", "More repair services in every brand.", "Cheaper recycled materials.", "New trends every week."], a: 0 },
+      { type: "title", q: "Select the best title for the passage.", o: ["The Hidden Price of Cheap Clothes", "How to Grow Cotton at Home", "A Short History of Shopping Malls", "Why Water Is Expensive"], a: 0 }
+    ]
+  }]
+};
+
+// Writing prompts by level. Interactive Writing has a follow-up question.
+BANK.writing = {
+  1: { q: "Describe your favorite room in your home. What do you do there?", f: "Would you change anything about this room? Why?" },
+  2: { q: "Tell me about a person who has helped you in your life. How did they help you?", f: "How have you helped someone else in a similar way?" },
+  3: { q: "Some people prefer to travel alone, while others prefer to travel with friends. Which do you prefer and why?", f: "Describe a trip that did not go as planned. What did you learn from it?" },
+  4: { q: "Many schools are replacing printed textbooks with tablets. What are the advantages and disadvantages of this change?", f: "Should students be allowed to use their phones during lessons? Explain your opinion." },
+  5: { q: "Some argue that governments should tax unhealthy food to improve public health. To what extent do you agree?", f: "Who should be most responsible for people's health: individuals, families or governments?" }
+};
+
+</script>
+<script data-app>
+// Extra Read and Select words. Real words as "word:перевод", invented words space-separated.
+BANK.addSelect = function (level, real, fake) {
+  real.split(",").map(s => s.trim()).filter(Boolean).forEach(p => {
+    const [w, g] = p.split(":");
+    if (!BANK.select[level].r.includes(w)) BANK.select[level].r.push(w);
+    BANK.gloss[w] = g;
+  });
+  fake.split(/\s+/).filter(Boolean).forEach(w => { if (!BANK.select[level].f.includes(w)) BANK.select[level].f.push(w); });
+};
+
+BANK.addSelect(1,
+  "apple:яблоко, bread:хлеб, chair:стул, cloud:облако, dance:танцевать, doctor:врач, family:семья, garden:сад, horse:лошадь, juice:сок, lemon:лимон, money:деньги, night:ночь, orange:апельсин, paper:бумага, quiet:тихий, rain:дождь, sister:сестра, small:маленький, street:улица, summer:лето, teacher:учитель, uncle:дядя, winter:зима, write:писать, young:молодой, bottle:бутылка, city:город, flower:цветок, letter:письмо",
+  "blim cronk fape glorn hobe jund klat lorp nesk ploon quam rinth stibe tunch vope wesk yarl zint brotch clunt drabe frup hessle pind sloob treck wabe fromp glinch sunt");
+
+BANK.addSelect(2,
+  "advice:совет, angry:сердитый, bridge:мост, cheap:дешёвый, climb:взбираться, collect:собирать, cousin:двоюродный брат/сестра, dangerous:опасный, describe:описывать, enough:достаточно, explain:объяснять, famous:знаменитый, forest:лес, hurry:спешить, invite:приглашать, knowledge:знание, lazy:ленивый, neighbor:сосед, noisy:шумный, ocean:океан, patient:терпеливый, prepare:готовить(ся), receive:получать, remember:помнить, safety:безопасность, silver:серебро, survive:выживать, tired:уставший, useful:полезный, wonder:интересоваться",
+  "clestry dunter framble glossen hurrow jestly kindrel larrow mostle pellow quenter rastle sporrow tindle vorish whimble yestle brundy carfle distel fromity gantle plustry snorrel trellow ungle bespin crantle dorrow flittle");
+
+</script>
+<script data-app>
+// Extra Read and Select words, levels 3–5.
+BANK.addSelect(3,
+  "accurate:точный, achieve:достигать, admire:восхищаться, approach:подход, available:доступный, benefit:польза, challenge:вызов, community:сообщество, compare:сравнивать, confident:уверенный, decrease:уменьшаться, deny:отрицать, efficient:эффективный, emerge:появляться, evidence:доказательство, flexible:гибкий, generous:щедрый, ignore:игнорировать, income:доход, influence:влияние, measure:измерять, obvious:очевидный, opportunity:возможность, persuade:убеждать, previous:предыдущий, purchase:покупка, recognize:узнавать, require:требовать, struggle:бороться, suitable:подходящий",
+  "abstrate benerous comprolate dispensive emburate fortensic gramulate hesitude immorant jurative obstrance perminent quandrous resolvate sustaunt tempidate unclarate vexillent wistance abundal deficate engrolve frenetal ambivate intrevate mortonate nostrable pelvicate collumate grievant");
+
+BANK.addSelect(4,
+  "abolish:отменять, adequate:достаточный, advocate:выступать за, allocate:распределять, anticipate:предвидеть, arbitrary:произвольный, coherent:связный, compelling:убедительный, comprehensive:всесторонний, concise:краткий, consensus:согласие, deficit:дефицит, diminish:уменьшать, discrepancy:расхождение, elaborate:подробный, endorse:одобрять, explicit:явный, feasible:осуществимый, fluctuate:колебаться, hypothesis:гипотеза, inherent:присущий, integrity:честность, legitimate:законный, notorious:печально известный, profound:глубокий, resilient:устойчивый, scarce:скудный, subtle:тонкий, tedious:утомительный, vulnerable:уязвимый, undermine:подрывать",
+  "abundicate belligerate circumspate elocatious fallacient gregulous hypocrastic juxtapent lucidate malevolate negligiate opulate perspicant querulent rapturate sagacitate tenacient ubiquate wantonate ambiloquent credulate diffidate equivocant fastidiate insipidate laconate mendicile obstinable pragmatous superflate");
+
+BANK.addSelect(5,
+  "acquiesce:молча соглашаться, anachronism:анахронизм, cacophony:какофония, capricious:капризный, circumvent:обходить, conundrum:загадка, deleterious:вредный, didactic:поучительный, esoteric:понятный немногим, exacerbate:усугублять, fastidious:привередливый, garrulous:болтливый, idiosyncrasy:особенность, impetuous:импульсивный, incongruous:неуместный, insidious:коварный, laconic:лаконичный, magnanimous:великодушный, mercurial:переменчивый, nefarious:гнусный, obstreperous:буйный, ostensible:мнимый, parsimonious:скупой, perspicacious:проницательный, prosaic:прозаичный, sanguine:оптимистичный, serendipity:счастливая случайность, tenuous:слабый/шаткий, vicissitude:превратность, zealous:усердный",
+  "acrimulent bellicuous cantankerate desultive effervitude fecundious grandiloquate histrionate impecunate lachrymant munificate nebulacious obdurant pellucidate quiescible recrudant sesquipedant truculate umbrageant verisimilant xenophant abstemitude bombastrous contumacent egregate inveterant loquacient perfidate turpidate obsequitude");
+
+</script>
+<script data-app>
+// Extra Fill in the Blanks: [sentence, answer, given letters, hint].
+BANK.addBlanks = (level, rows) => rows.forEach(([s, w, p, t]) => BANK.blanks[level].push({ s, w, p, t }));
+
+BANK.addBlanks(1, [
+  ["I brush my ___ twice a day.", "teeth", "te", "teeth — зубы"],
+  ["The cat is sleeping under the ___.", "table", "ta", "table — стол"],
+  ["We go to the beach every ___.", "summer", "sum", "summer — лето"],
+  ["My father drives a red ___.", "car", "c", "car — машина"],
+  ["Can I have a cup of ___, please?", "tea", "t", "tea — чай"],
+  ["She reads a ___ before bed.", "book", "bo", "book — книга"],
+  ["It's raining, so take your ___.", "umbrella", "umbr", "umbrella — зонт"],
+  ["There are seven days in a ___.", "week", "we", "week — неделя"],
+  ["He is hungry, so he wants to ___ something.", "eat", "e", "eat — есть"],
+  ["My birthday is in ___, after March.", "april", "ap", "April — апрель"]
+]);
+
+BANK.addBlanks(2, [
+  ["I'm sorry, I didn't ___ your question.", "understand", "under", "understand — понимать"],
+  ["The shop is open from nine in the morning ___ six.", "until", "un", "until — до"],
+  ["She is ___ of spiders.", "afraid", "afr", "be afraid of — бояться"],
+  ["Don't forget to ___ the lights when you go out.", "turn", "tu", "turn off — выключать"],
+  ["The soup is too hot, so wait for it to ___ down.", "cool", "co", "cool down — остыть"],
+  ["My grandmother ___ in a small village.", "lives", "liv", "she lives — она живёт (-s)"],
+  ["We missed the bus, so we had to ___.", "walk", "wa", "walk — идти пешком"],
+  ["He ___ his keys yesterday and couldn't open the door.", "lost", "lo", "lose → lost — потерял"],
+  ["This jacket is too ___; I need a bigger size.", "small", "sma", "small — маленький"],
+  ["I usually ___ up at seven o'clock.", "wake", "wa", "wake up — просыпаться"]
+]);
+
+BANK.addBlanks(3, [
+  ["The meeting was ___ because the manager was ill.", "cancelled", "cance", "cancel — отменять"],
+  ["Could you ___ me how to get to the station?", "tell", "te", "tell somebody — сказать кому-то"],
+  ["She is responsible ___ the marketing team.", "for", "f", "responsible for — ответственный за"],
+  ["The price of fuel has ___ sharply this year.", "risen", "ris", "rise → risen — вырос"],
+  ["Please ___ your seatbelt during the flight.", "fasten", "fas", "fasten — пристегнуть"],
+  ["He apologized ___ being late.", "for", "f", "apologize for — извиняться за"],
+  ["Many students ___ part-time jobs while they study.", "have", "ha", "have a job — работать"],
+  ["The ___ of the city is about two million people.", "population", "popul", "population — население"],
+  ["It took me a long time to ___ used to the cold weather.", "get", "g", "get used to — привыкнуть"],
+  ["I'd like to ___ a table for two at eight.", "book", "bo", "book a table — забронировать"]
+]);
+
+BANK.addBlanks(4, [
+  ["The company ___ a profit for the first time last year.", "made", "ma", "make a profit — получить прибыль"],
+  ["Researchers ___ that the results were not reliable.", "concluded", "conclu", "conclude — сделать вывод"],
+  ["The film was ___ on a true story.", "based", "bas", "based on — основан на"],
+  ["Access to clean water is a basic human ___.", "right", "ri", "human right — право человека"],
+  ["She was ___ for her outstanding contribution to science.", "awarded", "award", "award — награждать"],
+  ["The new law will come into ___ next month.", "effect", "eff", "come into effect — вступить в силу"],
+  ["The team faced several ___ during the project.", "obstacles", "obsta", "obstacle — препятствие"],
+  ["Prices ___ depending on the season.", "vary", "va", "vary — различаться"],
+  ["He ___ the job offer because the salary was too low.", "rejected", "rejec", "reject — отклонять"],
+  ["Regular feedback helps employees ___ their skills.", "develop", "deve", "develop skills — развивать навыки"]
+]);
+
+BANK.addBlanks(5, [
+  ["The theory was ___ by new experimental evidence.", "undermined", "underm", "undermine — подрывать"],
+  ["Her ___ remarks offended several guests.", "tactless", "tact", "tactless — бестактный"],
+  ["The committee reached a ___ decision after a long debate.", "unanimous", "unani", "unanimous — единогласный"],
+  ["The novel ___ the struggles of immigrant families.", "depicts", "depi", "depict — изображать"],
+  ["The economy showed signs of ___ after the crisis.", "recovery", "recov", "recovery — восстановление"],
+  ["His explanation was so ___ that nobody could follow it.", "convoluted", "convol", "convoluted — запутанный"],
+  ["The museum houses an ___ collection of ancient coins.", "extensive", "exten", "extensive — обширный"],
+  ["Critics ___ the decision as short-sighted.", "dismissed", "dismis", "dismiss as — отвергнуть как"],
+  ["The negotiations were ___ by mutual distrust.", "hampered", "hamp", "hamper — мешать"],
+  ["Scientists remain ___ about the long-term effects.", "cautious", "cauti", "cautious — осторожный"]
+]);
+
+</script>
+<script data-app>
+// Extra Read and Complete passages: two more per level.
+BANK.ctest[1].push(
+  { title: "My Pet Fish", text: "I have a small orange fish. Its [name] is Bubbles. It [lives] in a glass [bowl] in my bedroom. Every [morning] I give it a [little] food. Bubbles [likes] to swim around a [green] plant. I [think] it is a very [happy] fish." },
+  { title: "A Rainy Day", text: "Today it is [raining] all day. I [cannot] go outside, so I [stay] at home. I [watch] a film with my [brother] and we eat [popcorn]. Later my [mother] makes hot [chocolate]. Rainy days [are] nice too." }
+);
+BANK.ctest[2].push(
+  { title: "The School Trip", text: "Last month our class [went] on a trip to the [mountains]. We [left] early in the morning by [bus]. When we [arrived], the guide [showed] us the best path. The [walk] was long and [difficult], but the view from the [top] was amazing." },
+  { title: "Online Shopping", text: "More and [more] people buy things [online]. It is [easy] and you can [shop] at any time. However, [sometimes] the clothes do not [fit] or the colour is [different] from the photo. Then you [have] to send them [back]." }
+);
+BANK.ctest[3].push(
+  { title: "The Four-Day Week", text: "Some companies are [testing] a four-day working [week]. Employees [work] fewer hours but [receive] the same salary. Early [results] show that people [feel] less stressed and are [often] more productive. [However], not every [business] can easily adopt this [model]." },
+  { title: "Street Food", text: "Street food is an [important] part of many cultures. In [cities] like Bangkok and Mexico City, [people] buy cheap and [tasty] meals from small [stalls]. Tourists [enjoy] trying local [dishes], but they [should] choose stalls that look [clean]." }
+);
+BANK.ctest[4].push(
+  { title: "Microplastics", text: "Microplastics are tiny [pieces] of plastic smaller than five [millimetres]. They have been [found] in oceans, soil and [even] drinking water. Scientists are [concerned] because these particles can [enter] the food chain. [Although] their effects on human [health] are not yet fully [understood], many countries are [reducing] single-use plastics." },
+  { title: "Learning Through Games", text: "Educational games have [become] a popular tool in [classrooms]. Supporters [claim] that games increase [motivation] and help students [remember] information. Critics, [however], warn that too much [screen] time may [reduce] attention spans. Most [experts] agree that games work [best] alongside traditional teaching." }
+);
+BANK.ctest[5].push(
+  { title: "Cognitive Bias", text: "Cognitive biases are [systematic] errors in thinking that [affect] our decisions. One [example] is confirmation bias: the [tendency] to search for information that [supports] what we already [believe]. Because these biases [operate] unconsciously, even [experts] are not [immune], which makes [awareness] the first step toward reducing them." },
+  { title: "Urban Heat Islands", text: "Cities are often [significantly] warmer than surrounding [rural] areas, a phenomenon [known] as the urban heat island [effect]. Dark surfaces such as [asphalt] absorb heat during the [day] and release it at [night]. Planting [trees] and installing reflective [roofs] are among the most [effective] strategies to [mitigate] this problem." }
+);
+
+</script>
+<script data-app>
+// Extra Interactive Reading passages. Gap options: answer first, then distractors.
+BANK.ireading[1] = BANK.ireading[1] || [];
+BANK.ireading[5] = BANK.ireading[5] || [];
+
+BANK.ireading[1].push({
+  title: "Sam's New Bike",
+  text: "Sam got a new bike for his {1}. It was blue and very fast. On Saturday he {2} it to the park. He rode around the lake three {3}. Then it started to rain, so he went {4} quickly. His clothes were wet, but he was very {5}. He wants to ride his bike {6} day.",
+  g: [["birthday", "breakfast", "homework", "bedroom", "teacher"],
+      ["took", "ate", "sang", "wrote", "slept"],
+      ["times", "hours", "colors", "names", "rooms"],
+      ["home", "school", "sleep", "slowly", "inside"],
+      ["happy", "hungry", "angry", "old", "short"],
+      ["every", "all", "many", "some", "any"]],
+  q: [
+    { type: "idea", q: "What is the passage mainly about?", o: ["Sam enjoying his new bike.", "Sam losing his bike in the rain.", "A lake in the city.", "Sam's favorite clothes."], a: 0 },
+    { type: "detail", q: "Why did Sam go home?", o: ["It started to rain.", "He was hungry.", "His bike broke.", "His mother called him."], a: 0 },
+    { type: "title", q: "Select the best title for the passage.", o: ["A Happy Ride", "The Broken Bike", "A Day at School", "Swimming in the Lake"], a: 0 }
+  ]
+});
+
+BANK.ireading[2].push({
+  title: "The Lost Wallet",
+  text: "On his way to work, Daniel {1} a wallet on the pavement. Inside there was some money and an ID card with an {2}. Daniel decided to {3} the wallet to its owner after work. The owner, an old woman, was so {4} that she cried. She told him she had been {5} for it all day. Daniel felt proud that he had {6} the right thing.",
+  g: [["found", "built", "paid", "threw", "taught"],
+      ["address", "airport", "answer", "accident", "animal"],
+      ["return", "repeat", "refuse", "rent", "remove"],
+      ["grateful", "careless", "boring", "guilty", "lazy"],
+      ["looking", "watching", "seeing", "finding", "showing"],
+      ["done", "made", "taken", "put", "had"]],
+  q: [
+    { type: "idea", q: "What is the main idea of the passage?", o: ["Daniel returned a lost wallet to its owner.", "Daniel lost his own wallet at work.", "An old woman stole some money.", "Daniel was late for work."], a: 0 },
+    { type: "detail", q: "How did Daniel know where the owner lived?", o: ["The ID card had an address.", "A police officer told him.", "He saw her drop it.", "He asked his boss."], a: 0 },
+    { type: "title", q: "Select the best title for the passage.", o: ["A Small Act of Kindness", "How to Save Money", "A Busy Day at the Office", "The Old Woman's Secret"], a: 0 }
+  ]
+});
+
+BANK.ireading[3].push({
+  title: "The Community Garden",
+  text: "When the old factory near Ana's apartment was {1}, the empty land quickly filled with rubbish. Ana and her neighbors decided to {2} it into a garden. At first, the city council was {3} about the idea, worried about costs. However, the residents {4} enough money through local events. Within a year, the space was full of vegetables and flowers, and it became a popular place for families to {5}. The project even {6} a prize for the best neighborhood initiative.",
+  g: [["demolished", "decorated", "delivered", "described", "designed"],
+      ["transform", "transfer", "transport", "translate", "transmit"],
+      ["skeptical", "generous", "enthusiastic", "familiar", "grateful"],
+      ["raised", "rose", "rised", "arose", "risen"],
+      ["gather", "gamble", "gain", "guard", "govern"],
+      ["won", "earned up", "beat", "achieved at", "gained over"]],
+  q: [
+    { type: "idea", q: "What is the main idea of the passage?", o: ["Neighbors turned empty land into a successful garden.", "The city council built a new factory.", "Ana moved to a new apartment.", "Gardening is too expensive for cities."], a: 0 },
+    { type: "detail", q: "Why was the council unsure at first?", o: ["It was worried about the costs.", "It wanted to build houses there.", "It did not like flowers.", "The land was too small."], a: 0 },
+    { type: "title", q: "Select the best title for the passage.", o: ["From Rubbish to Roses", "Why Factories Close", "Ana's New Job", "The Council's Big Mistake"], a: 0 }
+  ]
+});
+
+</script>
+<script data-app>
+// Extra Interactive Reading passages, levels 4–5.
+BANK.ireading[4].push({
+  title: "The Sleep Economy",
+  text: "In recent years, sleep has become a {1} industry. Consumers spend billions on smart mattresses, sleep-tracking apps and herbal supplements. While some of these products are {2} by scientific research, many make claims that have never been properly {3}. Ironically, experts note that constantly checking sleep data can {4} anxiety, making it harder to fall asleep. Their advice is surprisingly simple: keep a {5} schedule, avoid screens before bed and {6} caffeine in the afternoon.",
+  g: [["profitable", "portable", "punctual", "physical", "patient"],
+      ["supported", "suspended", "supposed", "surrounded", "suggested"],
+      ["tested", "tasted", "texted", "tempted", "tended"],
+      ["increase", "invent", "invite", "involve", "insist"],
+      ["consistent", "constant", "considerate", "conscious", "contrary"],
+      ["limit", "lift", "lend", "lack", "link"]],
+  q: [
+    { type: "idea", q: "What is the main idea of the passage?", o: ["People spend a lot on sleep products, but simple habits may work better.", "Sleep-tracking apps are always scientifically proven.", "Caffeine is the main cause of anxiety.", "Mattress companies are losing money."], a: 0 },
+    { type: "detail", q: "What do experts say about checking sleep data?", o: ["It can increase anxiety.", "It always improves sleep.", "It should be done every hour.", "It replaces the need for a schedule."], a: 0 },
+    { type: "title", q: "Select the best title for the passage.", o: ["Paying for a Good Night's Rest", "The History of the Mattress", "Why Coffee Is Healthy", "Apps That Changed Medicine"], a: 0 }
+  ]
+});
+
+BANK.ireading[5].push({
+  title: "The Paradox of Choice",
+  text: "Conventional wisdom holds that more options lead to greater satisfaction. Yet psychologists have found that an {1} of choices can be paralysing. In one well-known experiment, shoppers who were offered a smaller selection of products were considerably more likely to make a purchase. Researchers {2} this to the cognitive burden of comparing alternatives and the fear of making a {3} decision. Moreover, people who choose from many options often feel less {4} afterwards, as they {5} about the alternatives they rejected. These findings have {6} implications for businesses and policymakers alike.",
+  g: [["abundance", "absence", "allowance", "assurance", "attendance"],
+      ["attribute", "contribute", "distribute", "retribute", "tribute"],
+      ["suboptimal", "subordinate", "subsequent", "substantial", "subconscious"],
+      ["content", "contempt", "context", "contest", "contact"],
+      ["ruminate", "radiate", "regulate", "relegate", "renovate"],
+      ["far-reaching", "far-fetched", "short-lived", "long-winded", "well-off"]],
+  q: [
+    { type: "idea", q: "What is the main idea of the passage?", o: ["Too many options can make decisions harder and less satisfying.", "Shoppers always prefer large selections.", "Businesses should offer as many products as possible.", "Psychologists disagree about the value of choice."], a: 0 },
+    { type: "detail", q: "Why do people feel less satisfied after choosing from many options?", o: ["They keep thinking about the options they rejected.", "The products are of lower quality.", "They spend too much money.", "They are not allowed to return items."], a: 0 },
+    { type: "title", q: "Select the best title for the passage.", o: ["When More Means Less", "A Guide to Smart Shopping", "The Rise of Online Stores", "How Policymakers Make Decisions"], a: 0 }
+  ]
+});
+
+</script>
+<script data-app>
+// Writing prompts: several per level. q = main prompt, f = follow-up for Interactive Writing.
+BANK.writingList = {
+  1: [BANK.writing[1],
+    { q: "What do you usually do on weekends? Describe a typical Saturday.", f: "What would your perfect weekend look like?" },
+    { q: "Describe your best friend. What do you like doing together?", f: "How did you meet your best friend?" },
+    { q: "What is your favorite food? Why do you like it?", f: "Can you cook? Describe something you can make." }],
+  2: [BANK.writing[2],
+    { q: "Describe a place in your city that you like to visit. Why do you like it?", f: "What would you change about your city if you could?" },
+    { q: "Tell me about a holiday or celebration that is important in your country.", f: "How has this celebration changed since you were a child?" },
+    { q: "Describe a skill you learned recently. How did you learn it?", f: "What skill would you like to learn next, and why?" }],
+  3: [BANK.writing[3],
+    { q: "Do you think it is better to study at home or in a library? Explain your reasons.", f: "Describe a time when you had to study under pressure." },
+    { q: "Is it important for young people to have a part-time job? Why or why not?", f: "What is the most useful thing you have learned outside school?" },
+    { q: "Some people say social media brings people closer, while others say it isolates them. What do you think?", f: "How much time do you spend online each day, and would you like to change that?" }],
+  4: [BANK.writing[4],
+    { q: "Should university education be free for everyone? Discuss the advantages and disadvantages.", f: "What alternatives to university can help young people build a successful career?" },
+    { q: "Many people now work from home. How does this affect cities and communities?", f: "Would you prefer to work from home or in an office? Explain." },
+    { q: "Some people believe tourism does more harm than good to local cultures. Do you agree?", f: "Describe a place that has changed because of tourism." }],
+  5: [BANK.writing[5],
+    { q: "To what extent should artificial intelligence be used in education? Consider both benefits and risks.", f: "Should students be allowed to use AI tools for homework? Justify your view." },
+    { q: "Some argue that individual actions cannot solve climate change and only governments can. Discuss.", f: "What is one realistic change your community could make to reduce its environmental impact?" },
+    { q: "Is it ever justified to limit freedom of speech? Support your position with examples.", f: "Who should decide what content is removed from social media platforms?" }]
+};
+
+</script>
+<script data-app>
+// Content fixes after review: invented words that turned out to be real (or too close to real words),
+// and a blank with two possible answers.
+(function () {
+  const FAKE = {
+    1: { brane: "brask", cronk: "cronth", treck: "trelp", wunder: "wundle", hessle: "hespel", sunt: "sunth", quam: "quamble" },
+    2: { rastle: "raskle", whimble: "whindle", distel: "distrel", bespin: "besprin" },
+    3: { deficate: "defrinate", tremulate: "trevulate", pellucent: "pellurant", disparent: "disprenent" },
+    4: { lucidate: "lucidrate" },
+    5: { obdurant: "obdurest" }
+  };
+  Object.entries(FAKE).forEach(([l, map]) => {
+    BANK.select[l].f = BANK.select[l].f.map(w => map[w] || w);
+  });
+  // "We had to wa___" fits both walk and wait: give one more letter.
+  BANK.blanks[2].forEach(b => { if (b.w === "walk" && b.p === "wa") b.p = "wal"; });
+})();
+
+</script>
+<script data-app>
+// Core: sections, adaptive level, timer, hub screen.
+window.App = (function () {
+  const $app = document.getElementById("app");
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+
+  const SECTIONS = [
+    { id: "select", name: "Read and Select", skill: "reading", n: 12, time: 10, desc: "Решите, настоящее ли это английское слово" },
+    { id: "blanks", name: "Fill in the Blanks", skill: "reading", n: 8, time: 25, desc: "Допишите слово в предложении" },
+    { id: "ctest", name: "Read and Complete", skill: "reading", n: 3, time: 180, desc: "Восстановите пропущенные буквы в тексте" },
+    { id: "ireading", name: "Interactive Reading", skill: "reading", n: 2, time: 420, desc: "Выберите слова и ответьте на вопросы к тексту" },
+    { id: "photo", name: "Write About the Photo", skill: "writing", n: 3, time: 60, desc: "Опишите картинку за 1 минуту" },
+    { id: "wsample", name: "Writing Sample", skill: "writing", n: 2, time: 300, desc: "Напишите ответ на вопрос за 5 минут" },
+    { id: "iwriting", name: "Interactive Writing", skill: "writing", n: 2, time: 300, desc: "Ответ на тему и на дополнительный вопрос" }
+  ];
+
+  // Each student's data lives under its own prefix; the student list and sound setting are shared.
+  const SHARED = new Set(["students", "current", "muted"]);
+  const raw = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  // A student's file uses its own namespace so it never touches the teacher's data on the same computer.
+  const NS = window.LOCK ? "detpL-" + window.LOCK.student.id + ":" : "detp:";
+  const key = k => SHARED.has(k) ? NS + k : NS + (raw.get(NS + "current") || "default") + ":" + k;
+  const store = {
+    get(k) { return raw.get(key(k)); },
+    set(k, v) { raw.set(key(k), v); },
+    // Backup of the current student's data: {key: value} without the namespace prefix.
+    dump() {
+      const pre = NS + (raw.get(NS + "current") || "default") + ":", out = {};
+      try { Object.keys(localStorage).filter(k => k.startsWith(pre)).forEach(k => out[k.slice(pre.length)] = raw.get(k)); } catch (e) {}
+      return out;
+    },
+    load(obj) { Object.entries(obj || {}).forEach(([k, v]) => { if (!SHARED.has(k)) this.set(k, v); }); },
+    wipe(id) { try { Object.keys(localStorage).filter(k => k.startsWith(NS + id + ":")).forEach(k => localStorage.removeItem(k)); } catch (e) {} }
+  };
+
+  // ---- session ----
+  let S = null, timerId = null;
+  const tasks = {};          // id -> { render(item, ctx), make(level, used) }
+
+  function startSection(id) {
+    const sec = SECTIONS.find(s => s.id === id);
+    // seen = items shown in earlier attempts; new items are preferred over them.
+    S = { sec, level: 3, i: 0, log: [], used: new Set(), seen: new Set(store.get("seen:" + id) || []), started: Date.now() };
+    next();
+  }
+
+  // Correct answers move the level up, wrong answers move it down.
+  function record(entry) {
+    entry.level = S.level;
+    S.log.push(entry);
+    if (entry.ok === true) S.level = Math.min(5, S.level + 1);
+    else if (entry.ok === false) S.level = Math.max(1, S.level - 1);
+    else if (typeof entry.ok === "number") S.level = Math.max(1, Math.min(5, S.level + entry.ok));
+  }
+
+  function next() {
+    stopTimer();
+    if (S.i >= S.sec.n) { saveProgress(); return App.results(S); }
+    const item = tasks[S.sec.id].make(S.level, S.used, S);
+    S.i++;
+    tasks[S.sec.id].render(item, S);
+  }
+
+  function saveProgress() {
+    store.set("seen:" + S.sec.id, [...new Set([...S.seen, ...S.used])].slice(-3000));
+    const p = store.get("progress") || {};
+    const graded = S.log.filter(e => typeof e.ok === "boolean");
+    const acc = graded.length ? graded.filter(e => e.ok).length / graded.length : null;
+    const prev = p[S.sec.id] || { runs: 0, best: 0 };
+    p[S.sec.id] = { runs: prev.runs + 1, best: Math.max(prev.best, estimate(S)), acc };
+    store.set("progress", p);
+  }
+
+  // Rough DET-style estimate (10–160) from the levels reached and accuracy.
+  function estimate(s) {
+    const lv = s.log.map(e => e.level).concat([s.level]);
+    const tail = lv.slice(Math.floor(lv.length / 2));
+    const avg = tail.reduce((a, b) => a + b, 0) / tail.length;
+    const graded = s.log.filter(e => typeof e.ok === "boolean");
+    const acc = graded.length ? graded.filter(e => e.ok).length / graded.length : 0.6;
+    const score = 35 + avg * 20 + (acc - 0.5) * 20;
+    return Math.max(10, Math.min(160, Math.round(score / 5) * 5));
+  }
+
+  // ---- timer ----
+  function startTimer(seconds, onEnd) {
+    stopTimer();
+    let left = seconds;
+    const el = document.getElementById("t-val"), box = document.getElementById("timer");
+    const paint = () => { if (!el) return; el.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0"); box.classList.toggle("low", left <= 10); };
+    paint();
+    timerId = setInterval(() => { left--; paint(); if (left <= 0) { stopTimer(); onEnd(); } }, 1000);
+  }
+  function stopTimer() { if (timerId) clearInterval(timerId); timerId = null; }
+
+  // ---- shared exam frame ----
+  function frame(o) {
+    const bars = [1, 2, 3, 4, 5].map(l => `<i class="${l <= S.level ? "on" : ""}" style="height:${6 + l * 3}px"></i>`).join("");
+    $app.innerHTML = `
+      <div class="exam"><div class="ecard">
+        <div class="ehead">
+          <div class="timer" id="timer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="13" r="9"/><path d="M12 13l3-3M10 2h4"/></svg>
+            <b id="t-val">0:00</b><span>${esc(o.timerLabel || "for this question")}</span></div>
+          <div class="ehead-r">
+            <span class="qcount">${S.i} / ${S.sec.n}</span>
+            <span class="lvl" title="Текущий уровень сложности">${bars}</span>
+            <button class="close" id="quit" aria-label="Выйти">×</button>
+          </div>
+        </div>
+        <div class="ebody ${o.split ? "split" : ""}" id="ebody">${o.body}</div>
+        ${o.noFoot ? "" : `<div class="efoot"><span class="hint">${o.hint || ""}</span><button class="btn" id="submit" ${o.enabled ? "" : "disabled"}>${o.submitLabel || "Submit"}</button></div>`}
+        <div id="fb"></div>
+      </div></div>`;
+    document.getElementById("quit").onclick = () => { stopTimer(); if (S.log.length) App.results(S, true); else App.hub(); };
+    window.scrollTo(0, 0);
+  }
+
+  // Green/red panel at the bottom, like the real test.
+  function feedback(ok, answerHtml, onGo) {
+    const fb = document.getElementById("fb");
+    fb.innerHTML = `<div class="fb ${ok ? "ok" : "bad"}">
+      <div><div class="fb-t"><span class="fb-dot">${ok ? "✓" : "✕"}</span>${ok ? "Great job!" : "Incorrect"}</div>
+      ${!ok && answerHtml ? `<div class="fb-a"><strong>Correct Answer:</strong><br>${answerHtml}</div>` : ""}</div>
+      <button class="btn ${ok ? "green" : "red"}" id="go">${ok ? "Continue" : "Got it"}</button></div>`;
+    const go = document.getElementById("go");
+    go.focus();
+    go.onclick = onGo || next;
+  }
+
+  // ---- hub ----
+  const ICONS = {
+    select: `<svg viewBox="0 0 52 52" width="52" height="52"><rect x="4" y="6" width="26" height="26" rx="6" fill="#ddf4ff" stroke="#84d8ff" stroke-width="2"/><path d="M11 19l5 5 8-10" stroke="#1cb0f6" stroke-width="3.5" fill="none" stroke-linecap="round"/><rect x="24" y="24" width="22" height="22" rx="6" fill="#fff" stroke="#e5e5e5" stroke-width="2"/><path d="M30 30l10 10M40 30L30 40" stroke="#1cb0f6" stroke-width="3" stroke-linecap="round"/></svg>`,
+    blanks: `<svg viewBox="0 0 52 52" width="52" height="52"><rect x="3" y="17" width="46" height="18" rx="6" fill="#f7f7f7" stroke="#e5e5e5" stroke-width="2"/><rect x="17" y="13" width="12" height="26" rx="4" fill="#ddf4ff" stroke="#1cb0f6" stroke-width="2.5"/></svg>`,
+    ctest: `<svg viewBox="0 0 52 52" width="52" height="52"><rect x="5" y="5" width="42" height="42" rx="6" fill="#fff" stroke="#e5e5e5" stroke-width="2"/><g stroke-width="2.5" stroke-linecap="round"><path d="M12 16h10M12 26h22M12 36h8" stroke="#e5e5e5"/><rect x="25" y="12" width="12" height="8" rx="2" fill="#ddf4ff" stroke="#1cb0f6"/><rect x="21" y="32" width="12" height="8" rx="2" fill="#ddf4ff" stroke="#1cb0f6"/></g></svg>`,
+    ireading: `<svg viewBox="0 0 52 52" width="52" height="52"><rect x="4" y="5" width="40" height="40" rx="6" fill="#fff" stroke="#e5e5e5" stroke-width="2"/><path d="M11 15h20" stroke="#84d8ff" stroke-width="3" stroke-linecap="round"/><path d="M11 25h4M19 25h10" stroke="#e5e5e5" stroke-width="3" stroke-linecap="round"/><circle cx="12" cy="25" r="2.5" fill="#1cb0f6"/><rect x="31" y="31" width="17" height="17" rx="4" fill="#1cb0f6"/><path d="M36 36l7 3-3 1-1 3z" fill="#fff"/></svg>`,
+    photo: `<svg viewBox="0 0 52 52" width="52" height="52"><rect x="4" y="8" width="38" height="30" rx="6" fill="#f6e8ff" stroke="#ce82ff" stroke-width="2"/><path d="M8 34l10-12 8 9 5-5 8 8" stroke="#ce82ff" stroke-width="2.5" fill="none" stroke-linejoin="round"/><circle cx="32" cy="17" r="3.5" fill="#ffc800"/><rect x="31" y="30" width="17" height="17" rx="4" fill="#1cb0f6"/><path d="M35 43l2-6 6-6 2 2-6 6z" fill="#fff"/></svg>`,
+    wsample: `<svg viewBox="0 0 52 52" width="52" height="52"><rect x="6" y="4" width="34" height="44" rx="6" fill="#fff" stroke="#e5e5e5" stroke-width="2"/><path d="M13 14h20M13 22h20M13 30h12" stroke="#ce82ff" stroke-width="3" stroke-linecap="round"/><rect x="31" y="31" width="17" height="17" rx="4" fill="#1cb0f6"/><path d="M35 44l2-6 6-6 2 2-6 6z" fill="#fff"/></svg>`,
+    iwriting: `<svg viewBox="0 0 52 52" width="52" height="52"><rect x="4" y="6" width="30" height="20" rx="6" fill="#f6e8ff" stroke="#ce82ff" stroke-width="2"/><rect x="16" y="24" width="32" height="20" rx="6" fill="#ddf4ff" stroke="#84d8ff" stroke-width="2"/><path d="M10 16h18M22 34h20" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>`
+  };
+
+  let tab = "all";
+  function hub() {
+    stopTimer(); S = null;
+    const p = store.get("progress") || {};
+    const list = SECTIONS.filter(s => !s.hidden && (tab === "all" || s.skill === tab)).map(s => {
+      const pr = p[s.id];
+      const pct = pr ? Math.min(100, Math.round(pr.best / 160 * 100)) : 0;
+      return `<button class="task" data-id="${s.id}">
+        <span class="task-ico">${ICONS[s.id]}</span>
+        <span class="task-body">
+          <span class="task-name">${esc(s.name)}</span>
+          <span class="task-desc" style="display:block">${esc(s.desc)} · <span class="skill-chip ${s.skill === "writing" ? "w" : ""}">${s.skill}</span></span>
+          <span class="task-meta"><span class="bar"><i style="width:${pct}%"></i></span><span class="task-count">${pr ? "≈" + pr.best : "—"}</span></span>
+        </span></button>`;
+    }).join("");
+    $app.innerHTML = `
+      <header class="topbar"><div class="topbar-in">
+        <div class="logo"><span class="logo-mark">E</span>english test practice</div>
+        <div class="avatar" aria-hidden="true">S</div>
+      </div></header>
+      <div class="hub">
+        <nav class="side" aria-label="Меню">
+          ${[["all", "Практика", "#ddf4ff", "🏋"], ["reading", "Чтение", "#d7ffb8", "📖"], ["writing", "Письмо", "#f6e8ff", "✍"]].map(([k, l, c, i]) =>
+            `<button class="side-item tab-link ${tab === k ? "active" : ""}" data-tab="${k}" style="background-color:${tab === k ? "" : "transparent"};cursor:pointer;text-align:left;font-family:inherit"><span class="side-ico" style="background:${c}">${i}</span>${l}</button>`).join("")}
+        </nav>
+        <main class="main">
+          <section class="hero">
+            <div><h1>Тренировка к DET: чтение и письмо</h1>
+              <p>Задания подстраиваются под уровень: верный ответ делает следующее задание сложнее, ошибка — проще. В конце раздела вы увидите свои ответы, правильные варианты и советы.</p>
+              <button class="btn" id="rand">Случайный раздел</button></div>
+            <div class="hero-art" aria-hidden="true"><span class="scr"></span><span class="base"></span></div>
+          </section>
+          <h2 class="sec">Отработайте навыки</h2>
+          <div class="tabs" role="tablist">
+            ${[["all", "Все"], ["reading", "Reading"], ["writing", "Writing"]].map(([k, l]) => `<button class="tab ${tab === k ? "active" : ""}" data-tab="${k}" role="tab">${l}</button>`).join("")}
+          </div>
+          <div class="task-list">${list}</div>
+        </main>
+      </div>`;
+    $app.querySelectorAll(".task").forEach(b => b.onclick = () => App.startSection(b.dataset.id));
+    $app.querySelectorAll(".tab, .tab-link").forEach(b => b.onclick = () => { tab = b.dataset.tab; App.hub(); });
+    document.getElementById("rand").onclick = () => App.startSection(pick(SECTIONS).id);
+  }
+
+  return {
+    SECTIONS, tasks, esc, shuffle, pick, store, frame, feedback, record, next, startTimer, stopTimer, estimate, hub, startSection,
+    get S() { return S; },
+    start() { App.hub(); }
+  };
+})();
+
+</script>
+<script data-app>
+// Reading tasks: Read and Select, Fill in the Blanks, Read and Complete, Interactive Reading.
+(function () {
+  const { tasks, esc, shuffle, pick, frame, record, next, startTimer, stopTimer } = App;
+  const feedback = (...a) => App.feedback(...a);
+  const $ = id => document.getElementById(id);
+  const norm = s => String(s || "").trim().toLowerCase();
+
+  // Pick an item never seen before from this level or a neighbour; otherwise one not used in this attempt.
+  function fromLevel(bank, level, used, keyOf) {
+    const seen = App.S.seen;
+    const order = [0, -1, 1, -2, 2, -3, 3, -4, 4].map(d => level + d).filter(l => bank[l]);
+    const tryPick = (levels, ok) => {
+      for (const l of levels) {
+        const free = bank[l].filter(ok);
+        if (free.length) { const it = pick(free); used.add(keyOf(it)); return { it, lvl: l }; }
+      }
+    };
+    const r = tryPick(order.filter(l => Math.abs(l - level) <= 1), x => !used.has(keyOf(x)) && !seen.has(keyOf(x)))
+      || tryPick(order, x => !used.has(keyOf(x)));
+    if (r) return r;
+    const it = pick(bank[order[0]]); return { it, lvl: order[0] };
+  }
+
+  // Letter boxes: given letters as text, the rest as one-letter inputs.
+  function boxes(word, given, idx) {
+    let h = `<span class="lb" data-gap="${idx}">`;
+    for (let i = 0; i < word.length; i++)
+      h += i < given ? `<span>${esc(word[i])}</span>` : `<input maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="letter ${i + 1}">`;
+    return h + "</span>";
+  }
+  function wireBoxes(root, onChange) {
+    const inputs = [...root.querySelectorAll(".lb input")];
+    inputs.forEach((inp, k) => {
+      inp.addEventListener("input", () => { inp.value = inp.value.slice(-1); if (inp.value && inputs[k + 1]) inputs[k + 1].focus(); onChange(); });
+      inp.addEventListener("keydown", e => {
+        if (e.key === "Backspace" && !inp.value && inputs[k - 1]) { inputs[k - 1].focus(); inputs[k - 1].value = ""; onChange(); e.preventDefault(); }
+        if (e.key === "Enter") { const b = $("submit"); if (b && !b.disabled) b.click(); }
+      });
+    });
+    if (inputs[0]) inputs[0].focus();
+  }
+  const readGap = (lb, word, given) => word.slice(0, given) + [...lb.querySelectorAll("input")].map(i => i.value || "_").join("");
+  const half = w => Math.max(1, Math.floor(w.length / 2));
+
+  // ---------- Read and Select ----------
+  tasks.select = {
+    make(level, used) {
+      const b = BANK.select[level], real = Math.random() < 0.5;
+      const all = real ? b.r : b.f, seen = App.S.seen;
+      const fresh = all.filter(w => !used.has(w) && !seen.has(w)), notNow = all.filter(w => !used.has(w));
+      const w = pick(fresh.length ? fresh : notNow.length ? notNow : all); used.add(w);
+      return { w, real };
+    },
+    render(it) {
+      const yes = `<svg viewBox="0 0 48 48"><path d="M8 25l11 11L40 13" stroke="#1cb0f6" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const no = `<svg viewBox="0 0 48 48"><path d="M11 11l26 26M37 11L11 37" stroke="#1cb0f6" stroke-width="7" stroke-linecap="round"/></svg>`;
+      frame({ noFoot: true, body: `<h2 class="qtitle">Is this a real English word?</h2><div class="word">${esc(it.w)}</div>
+        <div class="yn"><button class="choice" id="y">${yes}Yes</button><button class="choice" id="n">${no}No</button></div>` });
+      let done = false;
+      const answer = said => {
+        if (done) return; done = true; stopTimer();
+        const ok = said === it.real;
+        if (said !== null) $(said ? "y" : "n").classList.add("sel");
+        record({ type: "select", ok, q: it.w, you: said === null ? "нет ответа" : said ? "Yes" : "No", right: it.real ? "Yes" : "No",
+          tip: it.real ? `Настоящее слово: ${it.w} — ${BANK.gloss[it.w] || ""}` : "Такого слова нет в английском.", real: it.real, timeout: said === null });
+        feedback(ok, it.real ? "Yes" : "No");
+      };
+      $("y").onclick = () => answer(true); $("n").onclick = () => answer(false);
+      startTimer(App.S.sec.time, () => answer(null));
+    }
+  };
+
+  // ---------- Fill in the Blanks ----------
+  tasks.blanks = {
+    make(level, used) { return fromLevel(BANK.blanks, level, used, x => x.s).it; },
+    render(it) {
+      const given = it.p.length;
+      const sent = esc(it.s).replace("___", boxes(it.w, given, 0));
+      frame({ body: `<h2 class="qtitle">Complete the sentence with the correct word</h2><div class="sent">${sent}</div>`, hint: "Печатайте буквы — курсор переходит сам" });
+      const body = $("ebody"), btn = $("submit");
+      wireBoxes(body, () => { btn.disabled = ![...body.querySelectorAll("input")].some(i => i.value); });
+      let done = false;
+      const check = () => {
+        if (done) return; done = true; stopTimer();
+        const lb = body.querySelector(".lb"), you = readGap(lb, it.w, given), ok = norm(you) === norm(it.w);
+        lb.classList.add(ok ? "ok" : "bad"); lb.querySelectorAll("input").forEach(i => i.disabled = true);
+        btn.disabled = true;
+        record({ type: "blanks", ok, q: it.s.replace("___", "____"), you, right: it.w, tip: it.t });
+        feedback(ok, esc(it.w));
+      };
+      btn.onclick = check;
+      startTimer(App.S.sec.time, check);
+    }
+  };
+
+  // ---------- Read and Complete (C-test) ----------
+  tasks.ctest = {
+    make(level, used) { return fromLevel(BANK.ctest, level, used, x => x.title).it; },
+    render(it) {
+      const gaps = [];
+      const html = esc(it.text).replace(/\[([^\]]+)\]/g, (_, w) => { gaps.push(w); return boxes(w, half(w), gaps.length - 1); });
+      frame({ timerLabel: "for this question", body: `<h2 class="qtitle">Complete the text with the correct words</h2>
+        <div style="max-width:860px"><div class="ctitle">${esc(it.title)}</div><div class="ctext">${html}</div></div>`, hint: `${gaps.length} пропусков`, enabled: true });
+      const body = $("ebody");
+      wireBoxes(body, () => {});
+      let done = false;
+      const check = () => {
+        if (done) return; done = true; stopTimer();
+        const items = [...body.querySelectorAll(".lb")].map((lb, k) => {
+          const w = gaps[k], you = readGap(lb, w, half(w)), ok = norm(you) === norm(w);
+          lb.classList.add(ok ? "ok" : "bad"); lb.querySelectorAll("input").forEach(i => i.disabled = true);
+          return { w, you, ok };
+        });
+        $("submit").disabled = true;
+        const right = items.filter(x => x.ok).length, acc = right / items.length;
+        record({ type: "ctest", ok: acc >= 0.75 ? 1 : acc < 0.45 ? -1 : 0, acc, q: it.title, items, right, total: items.length });
+        const wrong = items.filter(x => !x.ok).map(x => `${esc(x.w)}`).join(", ");
+        feedback(acc >= 0.75, `${right} из ${items.length} верно. Пропущенные слова: ${wrong}`);
+      };
+      $("submit").onclick = check;
+      startTimer(App.S.sec.time, check);
+    }
+  };
+
+  // ---------- Interactive Reading ----------
+  tasks.ireading = {
+    make(level, used) { return fromLevel(BANK.ireading, level, used, x => x.title).it; },
+    render(it) {
+      const sel = Array(it.g.length).fill("");
+      const opts = it.g.map(g => shuffle(g));
+      const qs = it.q.map(q => { const order = shuffle(q.o.map((t, k) => k)); return { ...q, order }; });
+      const qAns = Array(qs.length).fill(null);
+      let stage = 1, gapRes = null;
+
+      const passage = () => esc(it.text).replace(/\{(\d)\}/g, (_, n) => {
+        const k = n - 1, v = sel[k];
+        const cls = gapRes ? (gapRes[k] ? "color:var(--green-dark)" : "color:var(--red-dark)") : "";
+        return `<span class="gap" style="${cls}"><em>${n}</em>${esc(v || "")}</span>`;
+      });
+      const left = () => `<div class="pass"><div class="pass-l">Passage · ${esc(it.title)}</div><div class="pass-t" id="pt">${passage()}</div></div>`;
+
+      function stage1() {
+        frame({ split: true, timerLabel: "for this passage", body: left() + `<div class="qs"><h3>Select the best option for each missing word</h3>
+          ${opts.map((o, k) => `<label class="sel-row" id="row${k}"><em>${k + 1}</em><select id="s${k}" aria-label="gap ${k + 1}"><option value="">Select a word</option>${o.map(w => `<option>${esc(w)}</option>`).join("")}</select></label>`).join("")}</div>` });
+        opts.forEach((o, k) => $("s" + k).onchange = e => { sel[k] = e.target.value; $("pt").innerHTML = passage(); $("submit").disabled = sel.some(v => !v); });
+        $("submit").onclick = checkGaps;
+        startTimer(App.S.sec.time, () => { if (stage === 1) checkGaps(); else checkQs(); });
+      }
+      function checkGaps() {
+        gapRes = sel.map((v, k) => v === it.g[k][0]);
+        gapRes.forEach((ok, k) => { $("row" + k).classList.add(ok ? "ok" : "bad"); $("s" + k).disabled = true; });
+        $("pt").innerHTML = passage(); $("submit").disabled = true;
+        const n = gapRes.filter(Boolean).length;
+        feedback(n === gapRes.length, `${n} из ${gapRes.length}: ${it.g.map((g, k) => gapRes[k] ? null : `${k + 1} — ${esc(g[0])}`).filter(Boolean).join(", ")}`, stage2);
+      }
+      function stage2() {
+        stage = 2;
+        $("fb").innerHTML = "";
+        const qsEl = document.querySelector(".qs");
+        qsEl.innerHTML = qs.map((q, qi) => `<h3 style="font-size:20px;margin-top:${qi ? 28 : 0}px">${esc(q.q)}</h3>
+          ${q.order.map(oi => `<button class="opt" data-q="${qi}" data-o="${oi}">${esc(q.o[oi])}</button>`).join("")}`).join("");
+        qsEl.scrollTop = 0;
+        qsEl.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+          if (stage !== 2) return;
+          const qi = +b.dataset.q; qAns[qi] = +b.dataset.o;
+          qsEl.querySelectorAll(`.opt[data-q="${qi}"]`).forEach(x => x.classList.toggle("sel", x === b));
+          $("submit").disabled = qAns.some(v => v === null);
+        });
+        $("submit").onclick = checkQs;
+      }
+      function checkQs() {
+        if (stage === 3) return; stage = 3; stopTimer();
+        const qRes = qs.map((q, qi) => qAns[qi] === q.a);
+        document.querySelectorAll(".opt").forEach(b => {
+          const q = qs[+b.dataset.q], o = +b.dataset.o;
+          if (o === q.a) b.classList.add("ok"); else if (qAns[+b.dataset.q] === o) b.classList.add("bad");
+        });
+        $("submit").disabled = true;
+        const all = gapRes.concat(qRes), acc = all.filter(Boolean).length / all.length;
+        record({ type: "ireading", ok: acc >= 0.75 ? 1 : acc < 0.5 ? -1 : 0, acc, q: it.title,
+          gaps: it.g.map((g, k) => ({ w: g[0], you: sel[k] || "—", ok: gapRes[k] })),
+          qs: qs.map((q, qi) => ({ q: q.q, type: q.type, you: qAns[qi] === null ? "—" : q.o[qAns[qi]], right: q.o[q.a], ok: qRes[qi] })),
+          right: all.filter(Boolean).length, total: all.length });
+        feedback(qRes.every(Boolean), qs.map((q, qi) => qRes[qi] ? null : esc(q.o[q.a])).filter(Boolean).join("<br>"));
+      }
+      stage1();
+    }
+  };
+})();
+
+</script>
+<script data-app>
+// Writing tasks: Write About the Photo, Writing Sample, Interactive Writing, plus text metrics.
+(function () {
+  const { tasks, esc, pick, frame, record, next, startTimer, stopTimer } = App;
+  const feedback = (...a) => App.feedback(...a);
+  const $ = id => document.getElementById(id);
+
+  // Simple drawn scenes (no external images are allowed on the page). l = level.
+  const SCENES = [
+    { l: 1, id: "park", hint: "people in a park, a dog, trees, a sunny day",
+      svg: `<svg viewBox="0 0 380 260"><rect width="380" height="260" fill="#bfe8ff"/><circle cx="320" cy="50" r="26" fill="#ffd34d"/><rect y="170" width="380" height="90" fill="#8ed16b"/><rect x="40" y="110" width="14" height="70" fill="#8a5a35"/><circle cx="47" cy="100" r="38" fill="#4fae3c"/><rect x="300" y="120" width="12" height="60" fill="#8a5a35"/><circle cx="306" cy="110" r="30" fill="#5fbf48"/><rect x="120" y="185" width="110" height="10" rx="4" fill="#9b6b43"/><rect x="128" y="195" width="6" height="20" fill="#6d4a2e"/><rect x="216" y="195" width="6" height="20" fill="#6d4a2e"/><circle cx="150" cy="140" r="12" fill="#f2c9a0"/><rect x="138" y="152" width="24" height="34" rx="8" fill="#ff6b6b"/><circle cx="200" cy="142" r="12" fill="#8d5a3b"/><rect x="188" y="154" width="24" height="32" rx="8" fill="#4d8df0"/><ellipse cx="270" cy="212" rx="20" ry="10" fill="#f0e2c8"/><circle cx="288" cy="203" r="8" fill="#f0e2c8"/><path d="M250 210l-10-6" stroke="#f0e2c8" stroke-width="4"/></svg>` },
+    { l: 2, id: "kitchen", hint: "a family cooking together in a kitchen",
+      svg: `<svg viewBox="0 0 380 260"><rect width="380" height="260" fill="#fff4e0"/><rect y="170" width="380" height="90" fill="#e8c9a0"/><rect x="20" y="40" width="120" height="70" rx="6" fill="#bfe8ff" stroke="#fff" stroke-width="6"/><rect x="0" y="150" width="380" height="24" fill="#d9d9d9"/><rect x="220" y="110" width="40" height="40" rx="6" fill="#ff8c42"/><rect x="214" y="104" width="52" height="10" rx="4" fill="#c96a2e"/><circle cx="110" cy="96" r="13" fill="#f2c9a0"/><rect x="96" y="109" width="28" height="44" rx="9" fill="#2fb47a"/><circle cx="170" cy="112" r="10" fill="#e8b48a"/><rect x="159" y="122" width="22" height="30" rx="7" fill="#ffd34d"/><circle cx="300" cy="94" r="13" fill="#8d5a3b"/><rect x="286" y="107" width="28" height="46" rx="9" fill="#9069cd"/><circle cx="60" cy="146" r="10" fill="#ff4b4b"/><circle cx="76" cy="146" r="10" fill="#58cc02"/><circle cx="342" cy="146" r="8" fill="#ffc800"/></svg>` },
+    { l: 3, id: "station", hint: "a busy train station, people waiting, a clock, luggage",
+      svg: `<svg viewBox="0 0 380 260"><rect width="380" height="260" fill="#dfe6ee"/><path d="M0 60L190 10L380 60V80H0z" fill="#8aa0b8"/><rect y="190" width="380" height="70" fill="#9aa5b1"/><rect y="186" width="380" height="8" fill="#ffd34d"/><rect x="20" y="96" width="200" height="80" rx="14" fill="#1cb0f6"/><rect x="36" y="112" width="40" height="30" rx="4" fill="#e9f7ff"/><rect x="86" y="112" width="40" height="30" rx="4" fill="#e9f7ff"/><rect x="136" y="112" width="40" height="30" rx="4" fill="#e9f7ff"/><circle cx="300" cy="96" r="24" fill="#fff" stroke="#4b4b4b" stroke-width="4"/><path d="M300 96V80M300 96l10 6" stroke="#4b4b4b" stroke-width="3"/><circle cx="260" cy="146" r="11" fill="#f2c9a0"/><rect x="249" y="157" width="22" height="34" rx="7" fill="#ff6b6b"/><rect x="276" y="168" width="18" height="22" rx="3" fill="#9069cd"/><circle cx="330" cy="148" r="11" fill="#8d5a3b"/><rect x="319" y="159" width="22" height="32" rx="7" fill="#2fb47a"/><rect x="335" y="140" width="12" height="16" rx="2" fill="#e9f7ff"/></svg>` },
+    { l: 4, id: "flood", hint: "a flooded street after heavy rain, a person with an umbrella, cars in water",
+      svg: `<svg viewBox="0 0 380 260"><rect width="380" height="260" fill="#9fb0c2"/><rect x="20" y="60" width="90" height="140" fill="#c9b8a6"/><rect x="250" y="40" width="110" height="160" fill="#b7a593"/><g fill="#e9f7ff"><rect x="34" y="80" width="22" height="22"/><rect x="72" y="80" width="22" height="22"/><rect x="266" y="62" width="24" height="24"/><rect x="318" y="62" width="24" height="24"/></g><rect y="180" width="380" height="80" fill="#6d8fa8"/><rect x="130" y="170" width="80" height="26" rx="10" fill="#ff4b4b"/><path d="M0 196q30-8 60 0t60 0 60 0 60 0 60 0 60 0 60 0V260H0z" fill="#5a7d97"/><path d="M262 120a30 22 0 0 1 60 0z" fill="#ffc800"/><path d="M292 120v42" stroke="#4b4b4b" stroke-width="3"/><circle cx="292" cy="134" r="9" fill="#f2c9a0"/><rect x="283" y="143" width="18" height="40" rx="6" fill="#4d8df0"/><g stroke="#e9f7ff" stroke-width="2" opacity=".7"><path d="M40 20l-6 14M120 30l-6 14M200 14l-6 14M340 24l-6 14M160 50l-6 14"/></g></svg>` },
+    { l: 5, id: "lab", hint: "scientists working in a laboratory with a robot arm and computer screens",
+      svg: `<svg viewBox="0 0 380 260"><rect width="380" height="260" fill="#eef3f8"/><rect y="170" width="380" height="90" fill="#cfd8e2"/><rect x="0" y="150" width="380" height="22" fill="#9aa5b1"/><rect x="20" y="50" width="110" height="70" rx="6" fill="#4b4b4b"/><path d="M30 100l20-20 15 12 20-26 20 18" stroke="#58cc02" stroke-width="4" fill="none"/><rect x="150" y="40" width="70" height="60" rx="6" fill="#4b4b4b"/><g fill="#1cb0f6"><rect x="160" y="52" width="50" height="6"/><rect x="160" y="64" width="34" height="6"/><rect x="160" y="76" width="44" height="6"/></g><path d="M300 150v-50l-40-30" stroke="#ff8c42" stroke-width="12" stroke-linecap="round" fill="none"/><circle cx="300" cy="100" r="9" fill="#4b4b4b"/><path d="M252 64l-10-8m10 8l-6 12" stroke="#4b4b4b" stroke-width="4"/><circle cx="90" cy="128" r="11" fill="#f2c9a0"/><rect x="78" y="139" width="24" height="30" rx="7" fill="#fff" stroke="#cfd8e2" stroke-width="2"/><circle cx="200" cy="126" r="11" fill="#8d5a3b"/><rect x="188" y="137" width="24" height="32" rx="7" fill="#fff" stroke="#cfd8e2" stroke-width="2"/><rect x="230" y="134" width="10" height="18" rx="3" fill="#ce82ff"/></svg>` }
+  ];
+
+  const LINKERS = ["however", "therefore", "because", "although", "while", "moreover", "furthermore", "for example", "for instance", "in addition", "on the other hand", "as a result", "in conclusion", "firstly", "secondly", "finally", "also", "but", "so", "since", "whereas", "overall", "in my opinion", "instead", "unless"];
+  const STOP = new Set("the a an and or but so to of in on at for with is are was were be it this that i you he she we they my your his her our their there have has had do does did not as by from".split(" "));
+
+  // Rule-based metrics so feedback works even without the AI check.
+  function metrics(text) {
+    const t = text.trim();
+    const words = t ? t.split(/\s+/).filter(w => /[a-z]/i.test(w)) : [];
+    const sents = t ? t.split(/[.!?]+(\s|$)/).filter(s => s && s.trim().length > 1) : [];
+    const lower = t.toLowerCase();
+    const links = LINKERS.filter(l => new RegExp("\\b" + l + "\\b").test(lower));
+    const counts = {};
+    words.map(w => w.toLowerCase().replace(/[^a-z']/g, "")).filter(w => w && !STOP.has(w)).forEach(w => counts[w] = (counts[w] || 0) + 1);
+    const repeats = Object.entries(counts).filter(([w, n]) => n >= 3 && w.length > 2).sort((a, b) => b[1] - a[1]).slice(0, 4);
+    const uniq = new Set(words.map(w => w.toLowerCase().replace(/[^a-z']/g, ""))).size;
+    const long = words.filter(w => w.replace(/[^a-z]/gi, "").length >= 8).length;
+    const issues = [];
+    if (/\bi\b/.test(t)) issues.push("Местоимение «I» всегда пишется с большой буквы.");
+    if (sents.some(s => /^[a-z]/.test(s.trim()))) issues.push("Начинайте каждое предложение с большой буквы.");
+    if (t && !/[.!?]$/.test(t)) issues.push("Последнее предложение не закончено точкой.");
+    return { words: words.length, sents: sents.length, avg: sents.length ? words.length / sents.length : 0, links, repeats, ttr: words.length ? uniq / words.length : 0, long, issues };
+  }
+
+  // Score a response 0..1 against the target length for this task.
+  function quality(m, target) {
+    let q = Math.min(1, m.words / target) * 0.5;
+    q += Math.min(1, m.links.length / 3) * 0.2;
+    q += Math.min(1, m.ttr / 0.6) * 0.15;
+    q += Math.min(1, m.long / Math.max(3, target / 15)) * 0.15;
+    return q - Math.min(0.2, m.issues.length * 0.05);
+  }
+
+  function writeScreen({ title, side, target, seconds, label, onDone }) {
+    frame({ timerLabel: label, enabled: false, submitLabel: "Submit",
+      body: `<h2 class="qtitle">${esc(title)}</h2><div class="wwrap">${side}
+        <div class="wbox"><textarea id="ta" placeholder="Your response" spellcheck="false" aria-label="Your response"></textarea>
+        <div class="wc"><span id="wc">0</span> words · цель ${target}+</div></div></div>`,
+      hint: "Проверка орфографии отключена, как на экзамене" });
+    const ta = $("ta"), btn = $("submit");
+    ta.focus();
+    ta.oninput = () => { const n = metrics(ta.value).words; $("wc").textContent = n; btn.disabled = n < 1; };
+    let done = false;
+    const finish = () => { if (done) return; done = true; stopTimer(); ta.disabled = true; btn.disabled = true; onDone(ta.value); };
+    btn.onclick = finish;
+    startTimer(seconds, finish);
+  }
+
+  function step(q) { return q >= 0.7 ? 1 : q < 0.4 ? -1 : 0; }
+
+  // A prompt near the level, preferring ones never seen in earlier attempts.
+  function pickPrompt(level, used) {
+    const seen = App.S.seen, L = BANK.writingList;
+    const order = [0, -1, 1, -2, 2, -3, 3, -4, 4].map(d => level + d).filter(l => L[l]);
+    for (const pass of [x => !used.has(x.q) && !seen.has(x.q), x => !used.has(x.q), () => true])
+      for (const l of order) {
+        const free = L[l].filter(pass);
+        if (free.length) { const it = pick(free); used.add(it.q); return { l, it }; }
+      }
+  }
+
+  // ---------- Write About the Photo ----------
+  tasks.photo = {
+    make(level, used) {
+      const seen = App.S.seen, fresh = SCENES.filter(s => !used.has(s.id) && !seen.has(s.id) && Math.abs(s.l - level) <= 1);
+      const free = fresh.length ? fresh : SCENES.filter(s => !used.has(s.id));
+      const sc = free.sort((a, b) => Math.abs(a.l - level) - Math.abs(b.l - level))[0] || pick(SCENES);
+      used.add(sc.id); return sc;
+    },
+    render(sc) {
+      const target = 25 + App.S.level * 5;
+      writeScreen({ title: "Write a description of the image below for 1 minute", side: `<div class="wimg">${sc.svg}</div>`, target, seconds: App.S.sec.time, label: "for this question",
+        onDone(text) {
+          const m = metrics(text), q = quality(m, target);
+          record({ type: "photo", ok: step(q), q: "Опишите картинку: " + sc.hint, prompt: "Describe the image: " + sc.hint, text, m, quality: q, target, svg: sc.svg });
+          feedback(q >= 0.55, `${m.words} слов при цели ${target}+. Подробный разбор — в конце раздела.`);
+        } });
+    }
+  };
+
+  // ---------- Writing Sample ----------
+  tasks.wsample = {
+    make(level, used) { const r = pickPrompt(level, used); return { l: r.l, p: r.it.q }; },
+    render(it) {
+      const target = 50 + it.l * 15;
+      writeScreen({ title: "Write about the topic below for 5 minutes", side: `<div class="wprompt">${esc(it.p)}</div>`, target, seconds: App.S.sec.time, label: "for this question",
+        onDone(text) {
+          const m = metrics(text), q = quality(m, target);
+          record({ type: "wsample", ok: step(q), q: it.p, prompt: it.p, text, m, quality: q, target });
+          feedback(q >= 0.55, `${m.words} слов при цели ${target}+. Подробный разбор — в конце раздела.`);
+        } });
+    }
+  };
+
+  // ---------- Interactive Writing: main answer, then a follow-up on the same topic ----------
+  tasks.iwriting = {
+    make(level, used) {
+      if (App.S.i === 0) { const r = pickPrompt(level, used); App.S.topic = r; return { l: r.l, p: r.it.q, part: 1 }; }
+      const r = App.S.topic; return { l: r.l, p: r.it.f, part: 2 };
+    },
+    render(it) {
+      const target = it.part === 1 ? 50 + it.l * 15 : 30 + it.l * 10;
+      const secs = it.part === 1 ? 300 : 180;
+      const side = it.part === 1 ? `<div class="wprompt">${esc(it.p)}</div>`
+        : `<div class="wprompt"><div style="color:var(--muted);font-size:14px;margin-bottom:8px">Your first answer was saved. Now respond to this:</div>${esc(it.p)}</div>`;
+      writeScreen({ title: it.part === 1 ? "Respond to the question in at least 50 words" : "Follow-up: respond in 3 minutes", side, target, seconds: secs, label: it.part === 1 ? "for part 1" : "for part 2",
+        onDone(text) {
+          const m = metrics(text), q = quality(m, target);
+          record({ type: "iwriting", ok: 0, q: it.p, prompt: it.p, text, m, quality: q, target, part: it.part });
+          feedback(q >= 0.55, `${m.words} слов при цели ${target}+.`);
+        } });
+    }
+  };
+
+  App.metrics = metrics;
+  App.SCENES = SCENES;
+})();
+
+</script>
+<script data-app>
+// Extra scenes for Write About the Photo, part 1. P() draws a simple person: x, y = head centre.
+App.P = (x, y, skin, shirt, s = 1) =>
+  `<circle cx="${x}" cy="${y}" r="${11 * s}" fill="${skin}"/><rect x="${x - 12 * s}" y="${y + 11 * s}" width="${24 * s}" height="${32 * s}" rx="${8 * s}" fill="${shirt}"/>`;
+
+(function () {
+  const P = App.P, S = (body) => `<svg viewBox="0 0 380 260">${body}</svg>`;
+  App.SCENES.push(
+    { l: 1, id: "beach", hint: "a family at the beach, the sea, a sandcastle, a beach umbrella",
+      svg: S(`<rect width="380" height="260" fill="#9fdcff"/><circle cx="60" cy="50" r="24" fill="#ffd34d"/><rect y="120" width="380" height="60" fill="#1cb0f6"/><path d="M0 130q20-6 40 0t40 0 40 0 40 0 40 0 40 0 40 0 40 0 40 0 40 0" stroke="#e9f7ff" stroke-width="3" fill="none"/><rect y="175" width="380" height="85" fill="#f7dc9a"/><path d="M250 120l-40 0 20-30z" fill="#ff4b4b"/><path d="M230 90v100" stroke="#6d4a2e" stroke-width="3"/><path d="M190 120a40 22 0 0 1 80 0z" fill="#ff4b4b"/><path d="M190 120a40 22 0 0 1 80 0" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="14 12"/><rect x="80" y="200" width="44" height="26" fill="#e8c07a"/><rect x="88" y="186" width="12" height="14" fill="#e8c07a"/><rect x="106" y="186" width="12" height="14" fill="#e8c07a"/>${P(160, 168, "#f2c9a0", "#ffc800")}${P(300, 170, "#8d5a3b", "#58cc02")}${P(330, 186, "#f2c9a0", "#ce82ff", .7)}`) },
+    { l: 1, id: "classroom", hint: "a teacher and students in a classroom, a board, desks",
+      svg: S(`<rect width="380" height="260" fill="#fff4e0"/><rect y="190" width="380" height="70" fill="#d9b48a"/><rect x="60" y="30" width="190" height="100" rx="4" fill="#2f5d50" stroke="#8a5a35" stroke-width="6"/><text x="80" y="70" fill="#fff" font-size="20" font-family="sans-serif">2 + 3 = 5</text><text x="80" y="105" fill="#fff" font-size="16" font-family="sans-serif">Monday</text><rect x="290" y="40" width="60" height="44" fill="#bfe8ff" stroke="#fff" stroke-width="4"/>${P(275, 120, "#f2c9a0", "#9069cd", 1.1)}<rect x="40" y="200" width="80" height="12" fill="#8a5a35"/><rect x="170" y="200" width="80" height="12" fill="#8a5a35"/>${P(80, 166, "#8d5a3b", "#ff4b4b", .8)}${P(210, 166, "#f2c9a0", "#1cb0f6", .8)}<path d="M92 164l18-22" stroke="#8d5a3b" stroke-width="6" stroke-linecap="round"/>`) },
+    { l: 2, id: "party", hint: "a birthday party, a cake with candles, balloons, children",
+      svg: S(`<rect width="380" height="260" fill="#ffe8f0"/><rect y="190" width="380" height="70" fill="#e5d0f5"/><g stroke="#4b4b4b" stroke-width="1.5"><path d="M50 90v60M80 80v60M320 85v60"/></g><circle cx="50" cy="80" r="18" fill="#ff4b4b"/><circle cx="80" cy="68" r="18" fill="#1cb0f6"/><circle cx="320" cy="72" r="18" fill="#ffc800"/><path d="M110 20l40 20 40-20 40 20 40-20 40 20" stroke="#ce82ff" stroke-width="3" fill="none"/><rect x="100" y="170" width="180" height="14" rx="4" fill="#fff"/><rect x="150" y="130" width="80" height="40" rx="6" fill="#ff9fbf"/><rect x="150" y="130" width="80" height="10" fill="#fff"/><g fill="#ffc800"><rect x="165" y="114" width="5" height="16"/><rect x="188" y="114" width="5" height="16"/><rect x="211" y="114" width="5" height="16"/></g><g fill="#ff9600"><circle cx="167" cy="110" r="4"/><circle cx="190" cy="110" r="4"/><circle cx="213" cy="110" r="4"/></g>${P(110, 128, "#f2c9a0", "#58cc02", .8)}${P(270, 126, "#8d5a3b", "#ff4b4b", .8)}${P(330, 140, "#e8b48a", "#1cb0f6", .8)}<path d="M100 112l10-22 10 22z" fill="#ffc800"/>`) },
+    { l: 2, id: "market", hint: "an outdoor market, people buying fruit and vegetables from stalls",
+      svg: S(`<rect width="380" height="260" fill="#cfeaff"/><rect y="200" width="380" height="60" fill="#c9c2b8"/><path d="M20 90h150l-10 30H30z" fill="#ff4b4b"/><path d="M45 90l-5 30M75 90l-3 30M105 90v30M135 90l3 30" stroke="#fff" stroke-width="8"/><rect x="30" y="150" width="130" height="50" fill="#8a5a35"/><g><circle cx="50" cy="148" r="9" fill="#ff9600"/><circle cx="68" cy="148" r="9" fill="#ff9600"/><circle cx="92" cy="148" r="9" fill="#58cc02"/><circle cx="110" cy="148" r="9" fill="#58cc02"/><circle cx="134" cy="148" r="9" fill="#ff4b4b"/></g><path d="M210 90h150l-10 30H220z" fill="#58cc02"/><path d="M235 90l-5 30M265 90l-3 30M295 90v30M325 90l3 30" stroke="#fff" stroke-width="8"/><rect x="220" y="150" width="130" height="50" fill="#8a5a35"/><g fill="#ffc800"><ellipse cx="250" cy="146" rx="14" ry="6"/><ellipse cx="290" cy="146" rx="14" ry="6"/></g><rect x="320" y="136" width="18" height="14" fill="#ce82ff"/>${P(95, 110, "#f2c9a0", "#4d8df0")}${P(185, 160, "#8d5a3b", "#ffc800")}<rect x="196" y="178" width="18" height="16" rx="3" fill="#e8c07a"/>${P(285, 110, "#e8b48a", "#9069cd")}`) },
+    { l: 3, id: "ski", hint: "people skiing and snowboarding on a snowy mountain, a ski lift",
+      svg: S(`<rect width="380" height="260" fill="#cfe7ff"/><path d="M0 200L110 60l70 80 60-70 140 150V260H0z" fill="#fff"/><path d="M110 60l25 30-15-5-10 10-10-12-15 8z" fill="#dfe6ee"/><path d="M240 70l20 22-12-4-8 8z" fill="#dfe6ee"/><path d="M20 40L360 120" stroke="#4b4b4b" stroke-width="2"/><g fill="#ff4b4b"><rect x="90" y="56" width="22" height="16" rx="3"/><rect x="250" y="94" width="22" height="16" rx="3"/></g><path d="M101 46v10M261 84v10" stroke="#4b4b4b" stroke-width="2"/><g fill="#2fb47a"><path d="M20 230l15-40 15 40z"/><path d="M340 240l15-40 15 40z"/></g>${P(150, 170, "#f2c9a0", "#1cb0f6", .8)}<path d="M128 208l46 8" stroke="#4b4b4b" stroke-width="4" stroke-linecap="round"/>${P(240, 190, "#e8b48a", "#ff9600", .8)}<rect x="220" y="226" width="44" height="7" rx="3" fill="#9069cd"/><path d="M60 250q60-30 120-20t120 10" stroke="#e6edf5" stroke-width="6" fill="none"/>`) }
+  );
+})();
+
+</script>
+<script data-app>
+// Extra scenes for Write About the Photo, part 2 (harder to describe).
+(function () {
+  const P = App.P, S = (body) => `<svg viewBox="0 0 380 260">${body}</svg>`;
+  App.SCENES.push(
+    { l: 3, id: "doctor", hint: "a doctor examining a child in a clinic while a parent watches",
+      svg: S(`<rect width="380" height="260" fill="#eaf6f4"/><rect y="200" width="380" height="60" fill="#cfe3df"/><rect x="250" y="40" width="90" height="70" rx="4" fill="#fff" stroke="#cfe3df" stroke-width="4"/><path d="M295 55v40M275 75h40" stroke="#ff4b4b" stroke-width="8"/><rect x="40" y="160" width="140" height="20" rx="4" fill="#9aa5b1"/><rect x="50" y="180" width="8" height="24" fill="#6d7a87"/><rect x="162" y="180" width="8" height="24" fill="#6d7a87"/>${P(100, 128, "#f2c9a0", "#ffc800", .8)}${P(200, 104, "#8d5a3b", "#fff", 1.1)}<rect x="186" y="116" width="28" height="38" rx="8" fill="#fff" stroke="#cfe3df" stroke-width="2"/><path d="M194 120q-6 18 6 26" stroke="#4b4b4b" stroke-width="2" fill="none"/><circle cx="201" cy="148" r="4" fill="#9aa5b1"/>${P(300, 140, "#e8b48a", "#9069cd")}<path d="M120 150l60-6" stroke="#9aa5b1" stroke-width="3"/>`) },
+    { l: 4, id: "concert", hint: "a crowd at an outdoor music concert at night, a stage with lights",
+      svg: S(`<rect width="380" height="260" fill="#1d1b3a"/><g fill="#fff" opacity=".7"><circle cx="40" cy="30" r="1.5"/><circle cx="120" cy="18" r="1.5"/><circle cx="330" cy="26" r="1.5"/><circle cx="260" cy="12" r="1.5"/></g><path d="M80 0l40 140h-60zM300 0l20 140h-60z" fill="#ffc800" opacity=".18"/><rect x="60" y="120" width="260" height="40" fill="#3b3770"/><rect x="60" y="40" width="10" height="80" fill="#4b4b4b"/><rect x="310" y="40" width="10" height="80" fill="#4b4b4b"/><rect x="60" y="36" width="260" height="10" fill="#4b4b4b"/><g fill="#ffc800"><circle cx="110" cy="50" r="6"/><circle cx="190" cy="50" r="6"/><circle cx="270" cy="50" r="6"/></g>${P(150, 86, "#f2c9a0", "#ff4b4b", .8)}<rect x="168" y="96" width="34" height="10" rx="4" fill="#ce82ff"/>${P(230, 86, "#8d5a3b", "#1cb0f6", .8)}<path d="M222 96l-14-8" stroke="#8d5a3b" stroke-width="5"/><g fill="#0f0e22"><circle cx="40" cy="200" r="18"/><circle cx="90" cy="195" r="20"/><circle cx="140" cy="205" r="18"/><circle cx="190" cy="198" r="20"/><circle cx="240" cy="204" r="18"/><circle cx="290" cy="196" r="20"/><circle cx="340" cy="202" r="18"/><rect y="205" width="380" height="55"/></g><g stroke="#0f0e22" stroke-width="7" stroke-linecap="round"><path d="M70 190l-10-30M200 185l6-32M310 186l12-28"/></g><circle cx="206" cy="150" r="4" fill="#e9f7ff"/>`) },
+    { l: 4, id: "airport", hint: "an airport terminal with a delayed flight board, travellers waiting with suitcases",
+      svg: S(`<rect width="380" height="260" fill="#e7edf3"/><rect y="190" width="380" height="70" fill="#b7c3cf"/><rect x="0" y="40" width="380" height="80" fill="#bfe8ff"/><path d="M220 80l60-14 6 4-30 14 20 12-6 3-26-10-20 6-4-3z" fill="#fff"/><rect x="30" y="130" width="150" height="56" rx="4" fill="#2b2b2b"/><g font-family="monospace" font-size="11"><text x="40" y="148" fill="#ffc800">LONDON   10:40  BOARDING</text><text x="40" y="163" fill="#ff4b4b">PARIS    11:15  DELAYED</text><text x="40" y="178" fill="#ffc800">ROME     11:50  ON TIME</text></g>${P(230, 150, "#f2c9a0", "#1cb0f6", .9)}<rect x="250" y="168" width="20" height="26" rx="4" fill="#ff4b4b"/><path d="M260 160v8" stroke="#4b4b4b" stroke-width="3"/>${P(300, 156, "#8d5a3b", "#58cc02", .8)}<rect x="320" y="180" width="30" height="20" rx="4" fill="#9069cd"/><rect x="200" y="196" width="80" height="8" rx="3" fill="#6d7a87"/>${P(345, 144, "#e8b48a", "#ffc800", .8)}<rect x="336" y="140" width="8" height="12" rx="2" fill="#4b4b4b"/>`) },
+    { l: 5, id: "march", hint: "a climate protest march, people holding signs in a city street",
+      svg: S(`<rect width="380" height="260" fill="#d9e4ec"/><rect x="0" y="40" width="70" height="150" fill="#b7a593"/><rect x="300" y="20" width="80" height="170" fill="#a8b5c2"/><rect y="190" width="380" height="70" fill="#8b949d"/><g><rect x="70" y="70" width="70" height="40" fill="#fff" stroke="#4b4b4b" stroke-width="2"/><text x="105" y="88" text-anchor="middle" font-size="11" font-family="sans-serif" font-weight="700" fill="#58a700">THERE IS</text><text x="105" y="102" text-anchor="middle" font-size="11" font-family="sans-serif" font-weight="700" fill="#58a700">NO PLANET B</text><path d="M105 110v40" stroke="#6d4a2e" stroke-width="3"/></g><g><rect x="200" y="60" width="80" height="40" fill="#ffc800" stroke="#4b4b4b" stroke-width="2"/><text x="208" y="78" font-size="11" font-family="sans-serif" font-weight="700" fill="#4b4b4b">ACT NOW</text><text x="208" y="93" font-size="10" font-family="sans-serif" fill="#4b4b4b">for our future</text><path d="M240 100v50" stroke="#6d4a2e" stroke-width="3"/></g>${P(105, 156, "#f2c9a0", "#ff4b4b")}${P(160, 164, "#8d5a3b", "#1cb0f6")}${P(240, 156, "#e8b48a", "#58cc02")}${P(300, 166, "#f2c9a0", "#9069cd")}${P(50, 170, "#8d5a3b", "#ff9600", .9)}<circle cx="340" cy="60" r="16" fill="#58cc02" stroke="#fff" stroke-width="4"/>`) },
+    { l: 5, id: "energy", hint: "solar panels and wind turbines near a small town, an engineer checking the panels",
+      svg: S(`<rect width="380" height="260" fill="#cfeaff"/><circle cx="330" cy="40" r="20" fill="#ffd34d"/><path d="M0 170q90-30 190-10t190-10V260H0z" fill="#8ed16b"/><g stroke="#e9f7ff" stroke-width="4" stroke-linecap="round"><path d="M60 150V60M60 60l-30-14M60 60l30-14M60 60v34"/><path d="M130 140V70M130 70l-24-11M130 70l24-11M130 70v27"/></g><g fill="#2b4a7a" stroke="#e9f7ff" stroke-width="2"><path d="M170 200l30-30h60l-30 30z"/><path d="M240 214l30-30h60l-30 30z"/><path d="M160 236l30-30h60l-30 30z"/></g><g fill="#d6b58f"><rect x="300" y="120" width="30" height="26"/><rect x="336" y="126" width="26" height="20"/></g><g fill="#c0392b"><path d="M296 120l19-14 19 14z"/><path d="M333 126l16-12 16 12z"/></g>${P(110, 190, "#8d5a3b", "#ff9600")}<path d="M98 180h24" stroke="#ffc800" stroke-width="7" stroke-linecap="round"/><rect x="120" y="204" width="14" height="10" rx="2" fill="#4b4b4b"/>`) }
+  );
+})();
+
+</script>
+<script data-app>
+// Results: score estimate, answers review, recommendations, optional AI feedback on writing.
+(function () {
+  const { esc, estimate, stopTimer } = App;
+  const $ = id => document.getElementById(id);
+  const LV = ["", "A1–A2", "A2–B1", "B1", "B2", "C1"];
+
+  function lev(a, b) { // edit distance, for "spelling vs wrong word"
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  }
+  const low = s => String(s).toLowerCase().replace(/_/g, "");
+
+  function recommendations(S) {
+    const L = S.log, r = [], id = S.sec.id, top = Math.max(...L.map(e => e.level), S.level);
+    if (id === "select") {
+      const missedReal = L.filter(e => !e.ok && e.real && !e.timeout), fake = L.filter(e => !e.ok && !e.real && !e.timeout), to = L.filter(e => e.timeout);
+      if (missedReal.length) r.push(`<b>Словарный запас.</b> Вы не узнали настоящие слова: ${missedReal.map(e => esc(e.q)).join(", ")}. Выпишите их с переводом и повторите через день.`);
+      if (fake.length) r.push(`<b>Ложные слова.</b> Вы приняли за настоящие: ${fake.map(e => esc(e.q)).join(", ")}. Отвечайте «Yes», только если уверены, что встречали слово, — неверное «Yes» на экзамене снижает балл.`);
+      if (to.length) r.push(`<b>Скорость.</b> ${to.length} раз(а) не успели ответить. На каждое слово около 5 секунд: решайте с первого взгляда.`);
+    }
+    if (id === "blanks") {
+      const wrong = L.filter(e => !e.ok);
+      const spell = wrong.filter(e => lev(low(e.you), low(e.right)) <= 2 && low(e.you).length >= low(e.right).length - 1);
+      const vocab = wrong.filter(e => !spell.includes(e));
+      if (spell.length) r.push(`<b>Орфография.</b> Слово было угадано, но с ошибкой: ${spell.map(e => `${esc(e.you)} → <b>${esc(e.right)}</b>`).join(", ")}. Тренируйте написание по карточкам.`);
+      if (vocab.length) r.push(`<b>Контекст.</b> Читайте всё предложение до конца: подсказка часто стоит после пропуска (предлог, артикль, форма глагола). Повторите: ${vocab.map(e => esc(e.right)).join(", ")}.`);
+    }
+    if (id === "ctest") {
+      const miss = L.flatMap(e => e.items.filter(x => !x.ok));
+      const ending = miss.filter(x => x.you.replace(/_/g, "") && lev(low(x.you), low(x.w)) <= 2);
+      if (ending.length) r.push(`<b>Окончания и грамматика.</b> Почти правильно: ${ending.map(x => `${esc(x.you)} → <b>${esc(x.w)}</b>`).join(", ")}. Проверяйте время глагола, -s у he/she/it и множественное число.`);
+      if (miss.length - ending.length > 0) r.push(`<b>Смысл текста.</b> Сначала прочитайте весь текст бегло, потом заполняйте пропуски. Короткие служебные слова (the, of, will, this) дают лёгкие баллы — не пропускайте их.`);
+    }
+    if (id === "ireading") {
+      const gapMiss = L.flatMap(e => e.gaps.filter(g => !g.ok)), qMiss = L.flatMap(e => e.qs.filter(q => !q.ok));
+      if (gapMiss.length) r.push(`<b>Сочетаемость слов.</b> Ошибки в пропусках: ${gapMiss.map(g => `${esc(g.you)} → <b>${esc(g.w)}</b>`).join(", ")}. Проверяйте, подходит ли слово по смыслу и грамматически (часть речи, предлог после него).`);
+      if (qMiss.some(q => q.type === "idea" || q.type === "title")) r.push(`<b>Главная мысль.</b> Правильный ответ охватывает весь текст, а не одну деталь. Перечитайте первое и последнее предложения.`);
+      if (qMiss.some(q => q.type === "detail")) r.push(`<b>Детали.</b> Найдите в тексте ключевое слово из вопроса и прочитайте предложение вокруг него.`);
+    }
+    if (["photo", "wsample", "iwriting"].includes(id)) {
+      const ms = L.map(e => e.m);
+      const short = L.filter(e => e.m.words < e.target);
+      if (short.length) r.push(`<b>Объём.</b> ${short.length} из ${L.length} ответов короче цели. На экзамене длина и полнота ответа заметно влияют на балл — пишите до конца таймера.`);
+      const links = [...new Set(ms.flatMap(m => m.links))];
+      if (links.length < 3) r.push(`<b>Связность.</b> Используйте больше связок: however, for example, as a result, on the other hand, in addition. Сейчас: ${links.length ? links.join(", ") : "почти нет"}.`);
+      const reps = ms.flatMap(m => m.repeats.map(([w]) => w));
+      if (reps.length) r.push(`<b>Разнообразие лексики.</b> Часто повторяются: ${[...new Set(reps)].slice(0, 5).join(", ")}. Подберите синонимы.`);
+      if (ms.some(m => m.avg && m.avg < 9)) r.push(`<b>Сложные предложения.</b> Предложения в среднем короткие. Соединяйте их через which, because, although, when.`);
+      const iss = [...new Set(ms.flatMap(m => m.issues))];
+      iss.forEach(t => r.push(`<b>Оформление.</b> ${esc(t)}`));
+    }
+    if (!r.length) r.push(`<b>Отлично!</b> Ошибок почти нет. Попробуйте пройти раздел ещё раз: начнёте сразу с высокого уровня.`);
+    if (top <= 2) r.push(`<b>Уровень.</b> Задания пока держатся на простых уровнях. Начните с лексики A2–B1 и читайте короткие адаптированные тексты.`);
+    return r;
+  }
+
+  function review(e, i) {
+    const n = i + 1, tag = `<span class="lvl-tag">ур. ${e.level}</span>`;
+    if (e.type === "select" || e.type === "blanks" || e.type === "review") {
+      const you = e.ok ? `<span class="you-ok">${esc(e.you)}</span>` : `<span class="you-bad">${esc(e.you)}</span> → <span class="right">${esc(e.right)}</span>`;
+      return `<div class="rev"><span class="rev-dot ${e.ok ? "ok" : "bad"}">${n}</span><div><div class="rev-q">${esc(e.q)} ${tag}</div><div class="rev-a">Ваш ответ: ${you}</div>${e.tip ? `<div class="rev-tip">${esc(e.tip)}</div>` : ""}</div></div>`;
+    }
+    if (e.type === "ctest") {
+      const list = e.items.map(x => x.ok ? `<span class="you-ok">${esc(x.w)}</span>` : `<span class="you-bad">${esc(x.you)}</span> <span class="right">${esc(x.w)}</span>`).join(" · ");
+      return `<div class="rev"><span class="rev-dot ${e.acc >= .75 ? "ok" : "bad"}">${n}</span><div><div class="rev-q">${esc(e.q)} ${tag} — ${e.right}/${e.total}</div><div class="rev-a">${list}</div></div></div>`;
+    }
+    if (e.type === "ireading") {
+      const g = e.gaps.map((x, k) => `${k + 1}) ${x.ok ? `<span class="you-ok">${esc(x.w)}</span>` : `<span class="you-bad">${esc(x.you)}</span> <span class="right">${esc(x.w)}</span>`}`).join(" · ");
+      const q = e.qs.map(x => `<div class="rev-a">${esc(x.q)}<br>${x.ok ? `<span class="you-ok">${esc(x.you)}</span>` : `<span class="you-bad">${esc(x.you)}</span><br><span class="right">${esc(x.right)}</span>`}</div>`).join("");
+      return `<div class="rev"><span class="rev-dot ${e.acc >= .75 ? "ok" : "bad"}">${n}</span><div><div class="rev-q">${esc(e.q)} ${tag} — ${e.right}/${e.total}</div><div class="rev-a">${g}</div>${q}</div></div>`;
+    }
+    const m = e.m;
+    return `<div class="rev"><span class="rev-dot w">${n}</span><div style="min-width:0"><div class="rev-q">${esc(e.prompt)} ${tag}</div>
+      ${e.svg ? `<div style="max-width:220px;border-radius:8px;overflow:hidden;margin:6px 0">${e.svg}</div>` : ""}
+      <div class="essay">${esc(e.text || "(пусто)")}</div>
+      <div class="rev-a">${m.words} слов (цель ${e.target}+) · ${m.sents} предл. · связки: ${m.links.length ? esc(m.links.join(", ")) : "нет"}</div>
+      <div class="ai-box hidden" id="ai${i}"><div class="ai" id="ait${i}"></div></div></div></div>`;
+  }
+
+  async function aiCheck(S, btn, note) {
+    const sample = await window.claude?.use?.("sample");
+    if (!sample) { note.textContent = "ИИ-проверка доступна, только когда страница открыта на claude.ai с аккаунтом Claude."; btn.disabled = true; return; }
+    btn.disabled = true;
+    const items = S.log.map((e, i) => ({ e, i })).filter(x => x.e.text !== undefined);
+    for (const { e, i } of items) {
+      const box = $("ai" + i), out = $("ait" + i);
+      box.classList.remove("hidden"); out.textContent = "ИИ проверяет текст…";
+      const prompt = `Ты — опытный преподаватель, готовящий к Duolingo English Test. Проверь ответ ученицы на задание по письму.
+Задание: ${e.prompt}
+Ответ ученицы:
+"""${(e.text || "").slice(0, 4000)}"""
+
+Ответь по-русски, кратко и по делу, без вступлений, строго в таком формате:
+Оценка: примерный балл DET от 10 до 160 и уровень CEFR.
+Сильные стороны: 1–2 пункта.
+Ошибки: список «ошибка → исправление — короткое объяснение» (до 6 пунктов; если ошибок нет, так и напиши).
+Как улучшить: 2–3 конкретных совета.
+Улучшенная версия: перепиши ответ на английском на уровень выше, сохранив её идеи.`;
+      try {
+        await sample(prompt, { onText: ({ text }) => { out.textContent = text; } });
+      } catch (err) {
+        out.textContent = err.text || "";
+        if (err.code === "not_granted" || err.code === "sampling_disabled") { note.textContent = "ИИ-проверка не разрешена — используйте советы выше."; box.classList.add("hidden"); return; }
+        note.textContent = err.code === "rate_limited" ? "Слишком много запросов, попробуйте через минуту." : "Не удалось получить разбор. Попробуйте ещё раз.";
+        btn.disabled = false; return;
+      }
+    }
+    note.textContent = "Готово: разбор под каждым текстом.";
+  }
+
+  App.results = function (S, partial) {
+    stopTimer();
+    if (!S.log.length) return App.hub();
+    const score = estimate(S);
+    const graded = S.log.filter(e => typeof e.ok === "boolean");
+    const okN = graded.filter(e => e.ok).length;
+    const isWriting = S.sec.skill === "writing";
+    const accLine = graded.length ? `${okN} из ${graded.length}` : S.log.filter(e => e.acc !== undefined).map(e => Math.round(e.acc * 100) + "%").join(" · ") || "—";
+    const path = S.log.map(e => `<i class="${(e.ok === true || e.ok === 1 || (e.acc ?? 0) >= .75 || (e.quality ?? 0) >= .55) ? "ok" : "bad"}" style="height:${e.level * 20}%" title="уровень ${e.level}"></i>`).join("");
+    const app = document.getElementById("app");
+    app.innerHTML = `<div class="res">
+      <div class="res-card"><div class="res-top">
+        <div class="score"><div><b>${score}</b><span>ориентир DET</span></div></div>
+        <div class="res-sum"><h1>${esc(S.sec.name)}${partial ? " (не закончен)" : ""}</h1>
+          <div style="color:var(--muted)">Это ориентир, а не официальный балл: он считается по уровню заданий, до которого вы дошли, и точности ответов.</div>
+          <div class="stats">
+            <div class="stat"><b>${accLine}</b>${graded.length ? "верных ответов" : "точность"}</div>
+            <div class="stat"><b>${S.level} / 5</b>итоговый уровень · ${LV[S.level]}</div>
+            <div class="stat"><b>${Math.round((Date.now() - S.started) / 60000) || "<1"} мин</b>время</div>
+          </div>
+          <div class="path" aria-label="Путь по уровням">${path}</div>
+        </div></div></div>
+      <div class="res-card"><h2>Рекомендации</h2><ul class="rec">${recommendations(S).map(t => `<li>${t}</li>`).join("")}</ul>
+        ${isWriting ? `<div style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn" id="ai">Разбор текста ИИ</button><span id="ainote" style="color:var(--muted);font-size:14px">ИИ найдёт ошибки, оценит текст и покажет улучшенную версию.</span></div>` : ""}
+      </div>
+      <div class="res-card"><h2>Ваши ответы</h2>${S.log.map(review).join("")}</div>
+      <div class="res-actions">
+        <button class="btn green" id="again">Пройти ещё раз</button>
+        <button class="btn ghost" id="copy">Скопировать результаты</button>
+        <button class="btn ghost" id="home">Все разделы</button>
+      </div></div>`;
+    window.scrollTo(0, 0);
+    $("again").onclick = () => App.startSection(S.sec.id);
+    $("home").onclick = () => App.hub();
+    $("copy").onclick = async () => {
+      const who = App.currentStudent ? App.currentStudent().name + " — " : "";
+      const lines = [`${who}${S.sec.name}: ≈${score} (уровень ${S.level}/5), ${accLine}`].concat(S.log.map((e, i) =>
+        e.text !== undefined ? `${i + 1}. [ур.${e.level}] ${e.prompt}\n${e.text}` :
+        e.items ? `${i + 1}. [ур.${e.level}] ${e.q}: ${e.right}/${e.total}` :
+        e.gaps ? `${i + 1}. [ур.${e.level}] ${e.q}: ${e.right}/${e.total}` :
+        `${i + 1}. [ур.${e.level}] ${e.q} — ${e.you} ${e.ok ? "✓" : "✗ (" + e.right + ")"}`));
+      const txt = lines.join("\n");
+      try { await navigator.clipboard.writeText(txt); $("copy").textContent = "Скопировано"; }
+      catch (err) { const ta = document.createElement("textarea"); ta.value = txt; ta.style.cssText = "width:100%;min-height:160px;margin-top:12px"; $("copy").parentNode.after(ta); ta.select(); }
+    };
+    if (isWriting) $("ai").onclick = () => aiCheck(S, $("ai"), $("ainote"));
+  };
+})();
+
+</script>
+<script data-app>
+// Sounds (synthesized with Web Audio) and animations, layered over the core without changing it.
+(function () {
+  let ctx = null;
+  let muted = App.store.get("muted") === true;
+  const ac = () => { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ctx && ctx.state === "suspended") ctx.resume(); return ctx; };
+
+  function tone(freq, start, dur, type = "sine", vol = 0.18, slide = 0) {
+    const c = ac(); if (!c || muted) return;
+    const t = c.currentTime + start, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(freq * slide, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + 0.02);
+  }
+  const SND = {
+    correct() { tone(880, 0, 0.14, "triangle", 0.2); tone(1318.5, 0.09, 0.32, "triangle", 0.2); tone(2637, 0.09, 0.2, "sine", 0.04); },
+    wrong() { tone(220, 0, 0.16, "square", 0.07, 0.85); tone(185, 0.13, 0.26, "square", 0.07, 0.8); },
+    tap() { tone(1500, 0, 0.04, "sine", 0.05, 0.6); },
+    start() { [523.25, 659.25, 783.99].forEach((f, i) => tone(f, i * 0.07, 0.18, "triangle", 0.12)); },
+    finish() { [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => tone(f, i * 0.11, 0.35, "triangle", 0.14)); tone(2093, 0.55, 0.5, "sine", 0.05); },
+    tick() { tone(1200, 0, 0.03, "square", 0.025); }
+  };
+  App.sound = n => SND[n] && SND[n]();
+  App.isMuted = () => muted;
+  App.toggleMute = () => { muted = !muted; App.store.set("muted", muted); return muted; };
+
+  // ---- animation styles ----
+  const css = document.createElement("style");
+  css.dataset.inj = "1";
+  css.textContent = `
+  @keyframes fbUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  @keyframes fadeUp{from{transform:translateY(14px)}to{transform:none}}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  @keyframes dotIn{0%{transform:scale(0) rotate(-90deg)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+  @keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--r));opacity:.9}}
+  @keyframes ring{from{stroke-dashoffset:var(--len)}}
+  @keyframes barGrow{from{transform:scaleY(0)}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  .fb{animation:fbUp .22s cubic-bezier(.2,.9,.3,1.2)}
+  .fb-dot{animation:dotIn .35s ease-out}
+  .ecard .ebody>*{animation:fadeUp .3s ease-out both}
+  .ecard .ebody>*:nth-child(2){animation-delay:.05s}.ecard .ebody>*:nth-child(3){animation-delay:.1s}
+  .task,.res-card{animation:fadeUp .35s ease-out both}
+  .task:nth-child(2){animation-delay:.04s}.task:nth-child(3){animation-delay:.08s}.task:nth-child(4){animation-delay:.12s}.task:nth-child(5){animation-delay:.16s}.task:nth-child(6){animation-delay:.2s}.task:nth-child(7){animation-delay:.24s}
+  .res-card:nth-child(2){animation-delay:.1s}.res-card:nth-child(3){animation-delay:.2s}
+  .task{transition:transform .12s, box-shadow .12s, background .12s}
+  .task:hover{transform:translateY(-2px);box-shadow:0 4px 0 var(--line)}
+  .choice,.opt,.sel-row{transition:transform .08s, background .12s, border-color .12s}
+  .choice:active,.opt:active{transform:translateY(2px);border-bottom-width:2px}
+  .choice.sel,.opt.sel{animation:pop .2s ease-out}
+  .shake{animation:shake .4s ease-in-out}
+  .lb.ok,.sel-row.ok,.opt.ok{animation:pop .3s ease-out}
+  .lb.bad,.sel-row.bad,.opt.bad{animation:shake .4s ease-in-out}
+  .lvl i{transition:background .3s, transform .3s}
+  .lvl i.on{transform-origin:bottom}
+  .lvl.up i.on:last-of-type{animation:pulse .5s}
+  .timer.low{animation:pulse 1s infinite}
+  .bar>i{transition:width .8s ease-out}
+  .path i{animation:barGrow .5s ease-out both;transform-origin:bottom}
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+  .confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
+  .mute{background:none;border:2px solid var(--line);border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:16px;display:grid;place-items:center;color:var(--muted)}
+  .score{position:relative;border:none!important}
+  .score svg{position:absolute;inset:0;transform:rotate(-90deg)}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}`;
+  document.head.appendChild(css);
+
+  function confetti() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const box = document.createElement("div"); box.className = "confetti";
+    const colors = ["#58cc02", "#1cb0f6", "#ffc800", "#ff4b4b", "#ce82ff", "#ff9600"];
+    for (let i = 0; i < 70; i++) {
+      const p = document.createElement("i");
+      p.style.left = Math.random() * 100 + "vw";
+      p.style.background = colors[i % colors.length];
+      p.style.setProperty("--dx", (Math.random() * 200 - 100) + "px");
+      p.style.setProperty("--r", (Math.random() * 720 - 360) + "deg");
+      p.style.animationDuration = (1.6 + Math.random() * 1.6) + "s";
+      p.style.animationDelay = Math.random() * 0.4 + "s";
+      box.appendChild(p);
+    }
+    document.body.appendChild(box);
+    setTimeout(() => box.remove(), 4000);
+  }
+  App.confetti = confetti;
+
+  // Count a number up from 0 for the results circle.
+  function countUp(el, to) {
+    const t0 = performance.now(), d = 1100;
+    const step = t => { const k = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+
+  // ---- hooks into the core ----
+  const origFeedback = App.feedback;
+  App.feedback = function (ok, html, onGo) {
+    App.sound(ok ? "correct" : "wrong");
+    if (!ok) { const b = document.getElementById("ebody"); if (b) { b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); } }
+    origFeedback(ok, html, onGo);
+    const go = document.getElementById("go");
+    if (go) { const h = go.onclick; go.onclick = e => { App.sound("tap"); h(e); }; }
+  };
+
+  const origResults = App.results;
+  App.results = function (S, partial) {
+    origResults(S, partial);
+    const sc = document.querySelector(".score");
+    if (!sc) return;
+    const b = sc.querySelector("b"), val = +b.textContent;
+    const len = 2 * Math.PI * 70, frac = Math.max(0.03, val / 160);
+    sc.insertAdjacentHTML("afterbegin", `<svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="70" fill="none" stroke="var(--line)" stroke-width="10"/><circle cx="75" cy="75" r="70" fill="none" stroke="var(--green)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${len}" stroke-dashoffset="${len * (1 - frac)}" style="--len:${len};animation:ring 1.1s cubic-bezier(.3,.7,.3,1)"/></svg>`);
+    countUp(b, val);
+    App.sound("finish");
+    if (!partial) confetti();
+  };
+
+  // Tap sounds on choices, selects and options; sound when a section starts; mute button on the hub.
+  document.addEventListener("click", e => {
+    if (e.target.closest(".choice,.opt,.task,.tab,.tab-link")) App.sound("tap");
+  }, true);
+  document.addEventListener("change", e => { if (e.target.closest(".sel-row")) App.sound("tap"); }, true);
+
+  const origStart = App.startSection;
+  App.startSection = function (id) { App.sound("start"); return origStart(id); };
+
+  const origHub = App.hub;
+  App.hub = function () {
+    origHub();
+    const right = document.querySelector(".topbar-in");
+    if (right && !document.getElementById("mute")) {
+      const b = document.createElement("button");
+      b.className = "mute"; b.id = "mute"; b.title = "Звук";
+      b.textContent = muted ? "🔇" : "🔊";
+      b.onclick = () => { b.textContent = App.toggleMute() ? "🔇" : "🔊"; if (!muted) App.sound("tap"); };
+      right.insertBefore(b, right.lastElementChild);
+    }
+  };
+})();
+
+</script>
+<script data-app>
+// Extras: mistakes deck ("Работа над ошибками"), daily streak and XP.
+(function () {
+  const { esc, store, frame, record, startTimer, stopTimer } = App;
+  const $ = id => document.getElementById(id);
+  // Local calendar date (toISOString alone gives the UTC date).
+  const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+  App.today = today;
+
+  // ---------- collect mistakes after every section ----------
+  function harvest(S) {
+    const deck = store.get("mistakes") || [];
+    const add = (w, hint, ctx) => {
+      w = String(w || "").trim(); if (!w || /\s/.test(w)) return;
+      const ex = deck.find(c => c.w.toLowerCase() === w.toLowerCase());
+      if (ex) { ex.streak = 0; ex.misses = (ex.misses || 1) + 1; } else deck.push({ w, hint: hint || "", ctx: ctx || "", streak: 0, misses: 1 });
+    };
+    S.log.forEach(e => {
+      if (e.type === "select" && !e.ok && e.real) add(e.q, BANK.gloss[e.q], "");
+      if (e.type === "blanks" && !e.ok) add(e.right, e.tip, e.q);
+      if (e.type === "ctest") e.items.filter(x => !x.ok).forEach(x => add(x.w, "", e.q));
+      if (e.type === "ireading") e.gaps.filter(x => !x.ok).forEach(x => add(x.w, BANK.gloss[x.w] || "", e.q));
+      if (e.type === "review") { const c = deck.find(c => c.w === e.right); if (c) c.streak = e.ok ? c.streak + 1 : 0; }
+    });
+    store.set("mistakes", deck.filter(c => c.streak < 2));
+  }
+
+  // ---------- streak & XP ----------
+  function award(S) {
+    const d = store.get("days") || [];
+    if (d[d.length - 1] !== today()) d.push(today());
+    store.set("days", d.slice(-400));
+    const graded = S.log.filter(e => typeof e.ok === "boolean");
+    const xp = graded.filter(e => e.ok).length * 10 + S.log.filter(e => e.acc !== undefined).reduce((a, e) => a + Math.round(e.acc * 30), 0)
+      + S.log.filter(e => e.text !== undefined).reduce((a, e) => a + Math.min(40, e.m.words), 0);
+    store.set("xp", (store.get("xp") || 0) + xp);
+    const h = store.get("history") || [];
+    h.push({ id: S.sec.id, score: App.estimate(S), date: today() });
+    store.set("history", h.slice(-300));
+    return xp;
+  }
+  function streak() {
+    const d = new Set(store.get("days") || []);
+    let n = 0, t = new Date();
+    if (!d.has(today())) t.setDate(t.getDate() - 1);
+    while (d.has(t.toISOString().slice(0, 10))) { n++; t.setDate(t.getDate() - 1); }
+    return n;
+  }
+  App.streak = streak;
+
+  const origResults = App.results;
+  App.results = function (S, partial) {
+    let xp = 0;
+    if (S.log.length) { harvest(S); xp = award(S); }
+    origResults(S, partial);
+    const sum = document.querySelector(".stats");
+    if (sum && xp) sum.insertAdjacentHTML("beforeend", `<div class="stat" style="border-color:#ffc800"><b style="color:#ff9600">+${xp} XP</b>опыт</div>`);
+  };
+
+  // ---------- review section ----------
+  App.SECTIONS.push({ id: "review", name: "Работа над ошибками", skill: "review", n: 10, time: 30, hidden: true, desc: "Повторение слов, в которых были ошибки" });
+  App.tasks.review = {
+    make(level, used) {
+      const deck = (store.get("mistakes") || []).filter(c => !used.has(c.w));
+      const c = deck.sort((a, b) => (b.misses || 1) - (a.misses || 1))[Math.floor(Math.random() * Math.min(3, deck.length))];
+      used.add(c.w); return c;
+    },
+    render(c) {
+      const give = Math.max(1, Math.floor(c.w.length / 3));
+      let boxes = `<span class="lb">`;
+      for (let i = 0; i < c.w.length; i++) boxes += i < give ? `<span>${esc(c.w[i])}</span>` : `<input maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="letter ${i + 1}">`;
+      boxes += `</span>`;
+      const ctx = c.ctx && c.ctx.includes("____") ? `<div class="sent" style="margin-bottom:18px">${esc(c.ctx).replace("____", boxes)}</div>` : `<div class="sent" style="text-align:center;margin-bottom:18px">${boxes}</div>${c.ctx ? `<div style="color:var(--muted)">из текста «${esc(c.ctx)}»</div>` : ""}`;
+      frame({ body: `<h2 class="qtitle">Вспомните слово</h2>${c.hint ? `<div style="font-size:20px;margin-bottom:22px;background:var(--blue-soft);border-radius:12px;padding:8px 16px">${esc(c.hint)}</div>` : ""}${ctx}`, hint: "Слово уйдёт из колоды после 2 верных ответов подряд" });
+      const body = $("ebody"), inputs = [...body.querySelectorAll(".lb input")], btn = $("submit");
+      inputs.forEach((inp, k) => {
+        inp.oninput = () => { inp.value = inp.value.slice(-1); if (inp.value && inputs[k + 1]) inputs[k + 1].focus(); btn.disabled = !inputs.some(i => i.value); };
+        inp.onkeydown = e => { if (e.key === "Backspace" && !inp.value && inputs[k - 1]) { inputs[k - 1].focus(); inputs[k - 1].value = ""; e.preventDefault(); } if (e.key === "Enter" && !btn.disabled) btn.click(); };
+      });
+      inputs[0] && inputs[0].focus();
+      let done = false;
+      const check = () => {
+        if (done) return; done = true; stopTimer();
+        const you = c.w.slice(0, give) + inputs.map(i => i.value || "_").join(""), ok = you.toLowerCase() === c.w.toLowerCase();
+        body.querySelector(".lb").classList.add(ok ? "ok" : "bad"); inputs.forEach(i => i.disabled = true); btn.disabled = true;
+        record({ type: "review", ok, q: c.hint || c.ctx || c.w, you, right: c.w, tip: c.hint });
+        App.feedback(ok, esc(c.w));
+      };
+      btn.onclick = check;
+      startTimer(App.S.sec.time, check);
+    }
+  };
+  App.startReview = function () {
+    const n = (store.get("mistakes") || []).length;
+    if (!n) return;
+    App.SECTIONS.find(s => s.id === "review").n = Math.min(10, n);
+    App.startSection("review");
+  };
+})();
+
+</script>
+<script data-app>
+// Extras: mock exam, writing cheat sheet, tools block on the hub.
+(function () {
+  const { esc, store } = App;
+  const $ = id => document.getElementById(id);
+  const MOCK = [["select", 8], ["blanks", 5], ["ctest", 2], ["ireading", 1], ["photo", 1], ["wsample", 1]];
+  const sec = id => App.SECTIONS.find(s => s.id === id);
+
+  // ---------- mock exam ----------
+  function runMock() {
+    const m = App.mock, [id, n] = MOCK[m.i];
+    const s = sec(id); m.orig = s.n; s.n = n;
+    App.startSection(id);
+  }
+  App.startMock = () => { App.mock = { i: 0, scores: [] }; runMock(); };
+
+  const origResults = App.results;
+  App.results = function (S, partial) {
+    const m = App.mock;
+    if (m && S.sec.id === MOCK[m.i][0]) {
+      S.sec.n = m.orig;
+      if (partial) App.mock = null;
+      else m.scores.push({ name: S.sec.name, score: App.estimate(S) });
+    }
+    origResults(S, partial);
+    if (!App.mock || partial) return;
+    const acts = document.querySelector(".res-actions");
+    const last = m.i === MOCK.length - 1;
+    acts.innerHTML = `<div style="flex-basis:100%;font-weight:800;color:var(--muted)">Пробный экзамен: раздел ${m.i + 1} из ${MOCK.length}</div>
+      <button class="btn green" id="mnext">${last ? "Итог экзамена" : "Дальше: " + esc(sec(MOCK[m.i + 1][0]).name)}</button>
+      <button class="btn ghost" id="mstop">Прервать экзамен</button>`;
+    $("mnext").onclick = () => { if (last) summary(); else { m.i++; runMock(); } };
+    $("mstop").onclick = () => { App.mock = null; App.hub(); };
+  };
+
+  function summary() {
+    const m = App.mock; App.mock = null;
+    const avg = Math.round(m.scores.reduce((a, s) => a + s.score, 0) / m.scores.length / 5) * 5;
+    const h = store.get("mocks") || []; h.push({ date: App.today(), score: avg }); store.set("mocks", h.slice(-50));
+    const prev = h.length > 1 ? h[h.length - 2].score : null;
+    document.getElementById("app").innerHTML = `<div class="res">
+      <div class="res-card"><div class="res-top">
+        <div class="score"><div><b>${avg}</b><span>ориентир DET</span></div></div>
+        <div class="res-sum"><h1>Пробный экзамен завершён</h1>
+          <div style="color:var(--muted)">Оценка по чтению и письму. Аудирование и говорение не учитываются.${prev !== null ? ` Прошлый пробный экзамен: <b>${prev}</b> (${avg - prev >= 0 ? "+" : ""}${avg - prev}).` : ""}</div></div></div></div>
+      <div class="res-card"><h2>По разделам</h2>
+        ${m.scores.map(s => `<div class="rev" style="grid-template-columns:minmax(0,1fr) auto;align-items:center"><div><div class="rev-q">${esc(s.name)}</div><div class="bar" style="margin-top:6px"><i style="width:${Math.round(s.score / 160 * 100)}%"></i></div></div><b style="font-size:20px">${s.score}</b></div>`).join("")}
+      </div>
+      <div class="res-card"><h2>Что делать дальше</h2><ul class="rec">
+        <li><b>Слабый раздел:</b> ${esc(m.scores.slice().sort((a, b) => a.score - b.score)[0].name)}. Пройдите его отдельно 2–3 раза на этой неделе.</li>
+        <li><b>Ошибки:</b> откройте «Работу над ошибками», туда попали все слова, в которых вы ошиблись.</li>
+        <li><b>Повтор:</b> проходите пробный экзамен раз в неделю, чтобы видеть прогресс.</li></ul></div>
+      <div class="res-actions"><button class="btn ghost" id="home">Все разделы</button></div></div>`;
+    window.scrollTo(0, 0);
+    App.sound("finish"); App.confetti();
+    $("home").onclick = () => App.hub();
+  }
+
+  // ---------- writing cheat sheet ----------
+  const SHEET = [
+    ["Write About the Photo · 1 минута", ["In this picture, I can see…", "In the foreground / background, there is…", "On the left / right side…", "It looks like… / It seems that…", "They are probably… because…", "The atmosphere seems calm / busy / cheerful."],
+      "Опишите: где это, кто там, что они делают, как выглядят, какое настроение. Старайтесь написать 4–5 предложений, используйте Present Continuous."],
+    ["Writing Sample · 5 минут", ["In my opinion, … / I strongly believe that…", "There are two main reasons for this. First,… Second,…", "For example, … / For instance, …", "On the other hand, some people argue that…", "As a result, … / Therefore, …", "In conclusion, …"],
+      "Структура: мнение → 2 причины с примерами → другая точка зрения → вывод. Цель — 100+ слов, 6–8 предложений разной длины."],
+    ["Interactive Writing · 5 + 3 минуты", ["To answer this question, I would say…", "Personally, I have experienced…", "What I mean is…", "Another important point is…", "Building on my previous answer, …", "To sum up, …"],
+      "Во второй части не повторяйте первую: отвечайте прямо на новый вопрос и добавьте личный пример."],
+    ["Связки, которые повышают балл", ["however · although · whereas", "moreover · furthermore · in addition", "consequently · as a result · therefore", "for instance · such as · in particular", "despite · in spite of · nevertheless", "overall · to sum up · all in all"],
+      "Используйте 3–4 разных связки в каждом тексте, но не начинайте ими каждое предложение."],
+    ["Частые ошибки", ["people is → people are", "I am agree → I agree", "more better → better", "in the internet → on the internet", "discuss about → discuss", "depend of → depend on"],
+      "Перечитайте текст за 20 секунд до конца таймера и проверьте большие буквы, артикли и окончания -s/-ed."]
+  ];
+  App.cheatsheet = function () {
+    document.getElementById("app").innerHTML = `<div class="res">
+      <div class="res-actions" style="margin-bottom:16px"><button class="btn ghost" id="home">← Все разделы</button></div>
+      <h1 style="font-size:28px;margin:0 0 16px">Шпаргалка по письму</h1>
+      ${SHEET.map(([t, list, tip]) => `<div class="res-card"><h2>${esc(t)}</h2>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">${list.map(p => `<span class="stat" style="font-weight:600">${esc(p)}</span>`).join("")}</div>
+        <div class="rev-tip" style="font-size:15px">${esc(tip)}</div></div>`).join("")}
+    </div>`;
+    window.scrollTo(0, 0);
+    $("home").onclick = () => App.hub();
+  };
+
+  // ---------- hub: stats in the top bar + tools block ----------
+  const origHub = App.hub;
+  App.hub = function () {
+    origHub();
+    const bar = document.querySelector(".topbar-in");
+    if (bar) bar.lastElementChild.insertAdjacentHTML("beforebegin",
+      `<span style="display:flex;gap:14px;font-weight:800;margin-left:auto;margin-right:12px"><span title="Очки опыта" style="color:#ffc800">⭐ ${store.get("xp") || 0}</span></span>`);
+    const n = (store.get("mistakes") || []).length;
+    const mocks = store.get("mocks") || [];
+    const sec2 = document.querySelector("h2.sec");
+    if (!sec2) return;
+    sec2.insertAdjacentHTML("beforebegin", `<h2 class="sec">Подготовка к экзамену</h2><div class="task-list" style="margin-bottom:32px">
+      <button class="task" id="t-mock"><span class="task-ico" style="font-size:34px">🎯</span><span class="task-body"><span class="task-name">Пробный экзамен</span>
+        <span class="task-desc" style="display:block">Все разделы чтения и письма подряд, около 20 минут${mocks.length ? ` · последний результат ≈${mocks[mocks.length - 1].score}` : ""}</span></span></button>
+      <button class="task" id="t-rev" ${n ? "" : "disabled style=\"opacity:.6;cursor:default\""}><span class="task-ico" style="font-size:34px">📕</span><span class="task-body"><span class="task-name">Работа над ошибками</span>
+        <span class="task-desc" style="display:block">${n ? `${n} слов из ваших ошибок ждут повторения` : "Здесь появятся слова, в которых вы ошибётесь"}</span></span></button>
+      <button class="task" id="t-sheet"><span class="task-ico" style="font-size:34px">📝</span><span class="task-body"><span class="task-name">Шпаргалка по письму</span>
+        <span class="task-desc" style="display:block">Шаблоны ответов, связки и частые ошибки</span></span></button>
+    </div>`);
+    $("t-mock").onclick = App.startMock;
+    $("t-rev").onclick = App.startReview;
+    $("t-sheet").onclick = App.cheatsheet;
+  };
+})();
+
+</script>
+<script data-app>
+// Students: add, switch and remove profiles. Each profile keeps its own progress, mistakes and seen items.
+(function () {
+  const { esc, store } = App;
+  const COLORS = ["#9069cd", "#1cb0f6", "#58cc02", "#ff9600", "#ff4b4b", "#ce82ff", "#2fb47a", "#e8a33d"];
+  const list = () => store.get("students") || [];
+  const save = l => store.set("students", l);
+  const current = () => list().find(s => s.id === store.get("current"));
+
+  // A student's own file (window.LOCK) holds exactly one profile and cannot switch or edit it.
+  const LOCK = window.LOCK;
+  if (LOCK) { save([LOCK.student]); store.set("current", LOCK.student.id); }
+  if (!list().length) { const s = { id: "s" + Date.now(), name: "Ученик 1", c: COLORS[0] }; save([s]); store.set("current", s.id); }
+  if (!current()) store.set("current", list()[0].id);
+  App.currentStudent = current;
+
+  const css = document.createElement("style");
+  css.dataset.inj = "1";
+  css.textContent = `
+  .who{position:relative}
+  .who-btn{display:flex;align-items:center;gap:10px;background:none;border:2px solid var(--line);border-radius:14px;padding:4px 12px 4px 4px;cursor:pointer;font:inherit;font-weight:800;color:var(--ink)}
+  .who-btn:hover{background:var(--soft)}
+  .who-btn .avatar{flex:0 0 auto}
+  .who-menu{position:absolute;right:0;top:calc(100% + 8px);width:300px;max-width:calc(100vw - 32px);background:var(--card);border:2px solid var(--line);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);padding:12px;z-index:20}
+  .who-menu h4{margin:4px 6px 10px;font-size:14px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+  .who-row{display:flex;align-items:center;gap:10px;padding:6px;border-radius:12px}
+  .who-row.on{background:var(--blue-soft)}
+  .who-row .nm{flex:1;min-width:0;background:none;border:none;text-align:left;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:4px 0}
+  .who-row .x{background:none;border:none;color:var(--faint);font-size:20px;cursor:pointer;padding:0 6px}
+  .who-row .x:hover{color:var(--red)}
+  .who-ask{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:700;color:var(--red-dark)}
+  .who-ask button{border:none;border-radius:8px;padding:4px 10px;font:inherit;font-weight:800;cursor:pointer}
+  .who-add{display:flex;gap:8px;margin-top:10px;border-top:2px solid var(--line);padding-top:12px}
+  .who-add input{flex:1;min-width:0;border:2px solid var(--line);border-radius:12px;padding:8px 12px;font:inherit;font-size:15px;color:var(--ink);background:var(--soft)}
+  .who-add input:focus{outline:none;border-color:#84d8ff;background:var(--card)}
+  .who-add .btn{padding:8px 14px;font-size:13px}
+  .now{display:inline-flex;align-items:center;gap:8px;background:var(--blue-soft);color:var(--blue-dark);border-radius:10px;padding:4px 12px;font-weight:800;font-size:14px;margin-bottom:12px}
+  @media (max-width:520px){.who-btn .who-name{display:none}.who-btn{padding:4px}}`;
+  document.head.appendChild(css);
+
+  const av = s => `<span class="avatar" style="background:${s.c}">${esc((s.name.trim()[0] || "?").toUpperCase())}</span>`;
+
+  function menu(box) {
+    const cur = current();
+    box.innerHTML = `<h4>Ученики</h4>
+      ${list().map(s => `<div class="who-row ${s.id === cur.id ? "on" : ""}" data-id="${s.id}">${av(s)}
+        <button class="nm" data-act="pick">${esc(s.name)}</button>
+        ${list().length > 1 ? `<button class="x" data-act="ask" title="Удалить ученика" aria-label="Удалить ${esc(s.name)}">×</button>` : ""}</div>`).join("")}
+      <form class="who-add" id="who-add"><input id="who-new" maxlength="30" placeholder="Имя нового ученика" aria-label="Имя нового ученика"><button class="btn green" type="submit">Добавить</button></form>`;
+    box.querySelectorAll(".who-row").forEach(row => {
+      const id = row.dataset.id;
+      row.querySelector('[data-act="pick"]').onclick = () => { store.set("current", id); App.sound && App.sound("tap"); App.hub(); };
+      const x = row.querySelector('[data-act="ask"]');
+      if (x) x.onclick = e => {
+        e.stopPropagation();
+        const s = list().find(s => s.id === id);
+        x.outerHTML = `<span class="who-ask">Удалить вместе с прогрессом?<button data-act="yes" style="background:var(--red);color:#fff">Да</button><button data-act="no" style="background:var(--line);color:var(--ink)">Нет</button></span>`;
+        row.querySelector('[data-act="yes"]').onclick = () => {
+          store.wipe(id);
+          const rest = list().filter(t => t.id !== id); save(rest);
+          if (store.get("current") === id) store.set("current", rest[0].id);
+          App.hub(); openMenu();
+        };
+        row.querySelector('[data-act="no"]').onclick = () => menu(box);
+      };
+    });
+    box.querySelector("#who-add").onsubmit = e => {
+      e.preventDefault();
+      const name = box.querySelector("#who-new").value.trim();
+      if (!name) return box.querySelector("#who-new").focus();
+      const s = { id: "s" + Date.now(), name, c: COLORS[list().length % COLORS.length] };
+      save(list().concat(s)); store.set("current", s.id);
+      App.sound && App.sound("correct");
+      App.hub();
+    };
+  }
+  function openMenu() {
+    const box = document.getElementById("who-menu");
+    if (!box) return;
+    box.hidden = false; menu(box);
+  }
+
+  const origHub = App.hub;
+  App.hub = function () {
+    origHub();
+    const cur = current();
+    const old = document.querySelector(".topbar .avatar");
+    if (old) old.outerHTML = `<div class="who"><button class="who-btn" id="who-btn" aria-haspopup="true">${av(cur)}<span class="who-name">${esc(cur.name)}</span></button><div class="who-menu" id="who-menu" hidden></div></div>`;
+    const btn = document.getElementById("who-btn"), box = document.getElementById("who-menu");
+    if (LOCK) { box.remove(); btn.style.cursor = "default"; btn.title = "Личный файл ученика"; }
+    else btn.onclick = e => { e.stopPropagation(); if (box.hidden) openMenu(); else box.hidden = true; };
+    if (!LOCK) { box.onclick = e => e.stopPropagation(); document.onclick = () => { box.hidden = true; }; }
+    const h1 = document.querySelector(".hero h1");
+    if (h1) h1.insertAdjacentHTML("beforebegin", `<div class="now">${av(cur).replace('class="avatar"', 'class="avatar" style="width:22px;height:22px;font-size:12px;background:' + cur.c + '"')}Занимается: ${esc(cur.name)}</div>`);
+  };
+})();
+
+</script>
+<script data-app>
+// Student report: score history chart, per-section table, frequent mistakes, mock exams.
+(function () {
+  const { esc, store } = App;
+  const $ = id => document.getElementById(id);
+  const COL = { select: "#1cb0f6", blanks: "#58cc02", ctest: "#ff9600", ireading: "#9069cd", photo: "#ff4b4b", wsample: "#ce82ff", iwriting: "#2fb47a" };
+  const fmt = d => d ? d.slice(8, 10) + "." + d.slice(5, 7) : "";
+
+  function chart(h) {
+    const W = 640, H = 240, L = 40, R = 12, T = 14, B = 30;
+    const xs = i => L + (h.length < 2 ? (W - L - R) / 2 : i * (W - L - R) / (h.length - 1));
+    const ys = v => T + (1 - (v - 10) / 150) * (H - T - B);
+    let g = "";
+    [10, 60, 110, 160].forEach(v => g += `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${ys(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`);
+    const ids = [...new Set(h.map(x => x.id))].filter(id => COL[id]);
+    ids.forEach(id => {
+      const pts = h.map((x, i) => x.id === id ? [xs(i), ys(x.score)] : null).filter(Boolean);
+      if (pts.length > 1) g += `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${COL[id]}" stroke-width="2.5" stroke-linejoin="round"/>`;
+      pts.forEach(p => g += `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${COL[id]}" stroke="var(--card)" stroke-width="2"/>`);
+    });
+    const step = Math.max(1, Math.ceil(h.length / 8));
+    h.forEach((x, i) => { if (i % step === 0 || i === h.length - 1) g += `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)">${fmt(x.date)}</text>`; });
+    const legend = ids.map(id => `<span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700"><i style="width:12px;height:12px;border-radius:50%;background:${COL[id]}"></i>${esc(App.SECTIONS.find(s => s.id === id).name)}</span>`).join("");
+    return `<div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:480px;height:auto">${g}</svg></div><div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:8px">${legend}</div>`;
+  }
+
+  App.report = function () {
+    const who = App.currentStudent ? App.currentStudent() : { name: "" };
+    const h = store.get("history") || [], mocks = store.get("mocks") || [], deck = store.get("mistakes") || [];
+    const secs = App.SECTIONS.filter(s => !s.hidden);
+    const rows = secs.map(s => {
+      const r = h.filter(x => x.id === s.id);
+      return { s, n: r.length, last: r.length ? r[r.length - 1].score : null, best: r.length ? Math.max(...r.map(x => x.score)) : null, first: r.length ? r[0].score : null, date: r.length ? r[r.length - 1].date : "" };
+    });
+    const tried = rows.filter(r => r.n), never = rows.filter(r => !r.n);
+    const weak = tried.slice().sort((a, b) => a.last - b.last)[0];
+    const top = deck.slice().sort((a, b) => (b.misses || 1) - (a.misses || 1)).slice(0, 12);
+    const days = new Set(h.map(x => x.date)).size;
+
+    const tips = [];
+    const strong = tried.length > 1 ? tried.slice().sort((a, b) => b.last - a.last).slice(0, 2).filter(r => r !== weak) : [];
+    if (strong.length) tips.push(`<b style="color:var(--green-dark)">Сильные стороны:</b> ${strong.map(r => `${esc(r.s.name)} (≈${r.last})`).join(", ")}.`);
+    if (weak) tips.push(`<b style="color:var(--red-dark)">Над чем поработать:</b> ${esc(weak.s.name)} (последний ориентир ≈${weak.last}).`);
+    if (never.length) tips.push(`<b>Ещё не пробовали:</b> ${never.map(r => esc(r.s.name)).join(", ")}.`);
+    const up = tried.filter(r => r.n > 1 && r.last > r.first);
+    if (up.length) tips.push(`<b>Есть рост:</b> ${up.map(r => `${esc(r.s.name)} (+${r.last - r.first})`).join(", ")}.`);
+    if (top.length) tips.push(`<b>На повторение:</b> ${top.length >= 12 ? "больше 12" : top.length} слов в «Работе над ошибками».`);
+    if (!tips.length) tips.push("Пока нет данных: пройдите хотя бы один раздел.");
+
+    document.getElementById("app").innerHTML = `<div class="res">
+      <div class="res-actions" style="margin-bottom:16px"><button class="btn ghost" id="home">← Все разделы</button><button class="btn ghost" id="copyrep">Скопировать отчёт</button></div>
+      <h1 style="font-size:28px;margin:0 0 4px">Отчёт: ${esc(who.name)}</h1>
+      <div style="color:var(--muted);margin-bottom:16px">${h.length} попыток · ${days} дн. занятий · ${mocks.length} пробных экзаменов · ⭐ ${store.get("xp") || 0} XP</div>
+      <div class="res-card"><h2>Выводы</h2><ul class="rec">${tips.map(t => `<li>${t}</li>`).join("")}</ul></div>
+      <div class="res-card"><h2>Балл по датам</h2>${h.length ? chart(h.slice(-40)) : `<div style="color:var(--muted)">График появится после первых попыток.</div>`}</div>
+      <div class="res-card"><h2>По разделам</h2><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:460px">
+        <tr style="text-align:left;color:var(--muted);font-size:13px"><th style="padding:6px">Раздел</th><th>Попыток</th><th>Последний</th><th>Лучший</th><th>Изменение</th><th>Когда</th></tr>
+        ${rows.map(r => `<tr style="border-top:2px solid var(--line)"><td style="padding:10px 6px;font-weight:700"><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${COL[r.s.id]};margin-right:8px"></i>${esc(r.s.name)}</td><td>${r.n || "—"}</td><td>${r.last ?? "—"}</td><td>${r.best ?? "—"}</td>
+          <td style="font-weight:800;color:${r.n > 1 ? (r.last >= r.first ? "var(--green-dark)" : "var(--red-dark)") : "var(--muted)"}">${r.n > 1 ? (r.last - r.first >= 0 ? "+" : "") + (r.last - r.first) : "—"}</td><td style="color:var(--muted)">${fmt(r.date) || "—"}</td></tr>`).join("")}
+      </table></div></div>
+      <div class="res-card"><h2>Частые ошибки</h2>${top.length ? `<div style="display:flex;flex-wrap:wrap;gap:8px">${top.map(c => `<span class="stat"><b style="font-size:16px;display:inline">${esc(c.w)}</b>${c.hint ? ` — ${esc(c.hint)}` : ""}${(c.misses || 1) > 1 ? ` <span style="color:var(--red-dark)">×${c.misses}</span>` : ""}</span>`).join("")}</div>` : `<div style="color:var(--muted)">Ошибок на повторение нет.</div>`}</div>
+      <div class="res-card"><h2>Пробные экзамены</h2>${mocks.length ? mocks.slice(-10).map(m => `<div class="rev" style="grid-template-columns:70px minmax(0,1fr) 50px;align-items:center"><span style="color:var(--muted)">${fmt(m.date)}</span><div class="bar"><i style="width:${Math.round(m.score / 160 * 100)}%"></i></div><b>${m.score}</b></div>`).join("") : `<div style="color:var(--muted)">Пробных экзаменов ещё не было.</div>`}</div>
+      <div class="res-card"><h2>Резервная копия</h2>
+        <p style="color:var(--muted);margin:0 0 12px">Прогресс хранится в этом браузере. Если очистить историю или открыть файл в другом браузере, он пропадёт. Копия — на всякий случай, пользоваться ей не обязательно.</p>
+        <div class="res-actions"><button class="btn ghost" id="bk-save">Сохранить копию</button><label class="btn ghost" for="bk-file" style="display:inline-block">Восстановить из копии</label><input type="file" id="bk-file" accept=".json,application/json" hidden></div>
+        <div id="bk-msg" style="margin-top:8px;font-weight:700;color:var(--muted)"></div></div>
+    </div>`;
+    window.scrollTo(0, 0);
+    $("home").onclick = () => App.hub();
+    $("bk-save").onclick = async () => {
+      const name = `DET backup - ${who.name.replace(/[\\/:*?"<>|]/g, "")} - ${App.today()}.json`;
+      const data = JSON.stringify({ app: "det-practice", student: who.name, date: App.today(), data: store.dump() });
+      const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+      try {
+        if (dl) await dl.save({ filename: name, data });
+        else { const u = URL.createObjectURL(new Blob([data], { type: "application/json" })); const a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 5000); }
+        $("bk-msg").textContent = `Копия сохранена: ${name}`;
+      } catch (e) { $("bk-msg").textContent = e.code === "declined" ? "Сохранение отменено." : "Не удалось сохранить копию."; }
+    };
+    $("bk-file").onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        const j = JSON.parse(await f.text());
+        if (j.app !== "det-practice" || !j.data) throw 0;
+        store.load(j.data);
+        App.report();
+        $("bk-msg").textContent = `Восстановлено из копии от ${fmt(j.date)} (${j.student}).`;
+      } catch (err) { $("bk-msg").textContent = "Этот файл не похож на копию тренажёра."; }
+    };
+    $("copyrep").onclick = async () => {
+      const txt = [`Отчёт: ${who.name}`, ...rows.map(r => `${r.s.name}: ${r.n ? `последний ≈${r.last}, лучший ≈${r.best}, попыток ${r.n}` : "не пробовали"}`),
+        mocks.length ? `Пробные экзамены: ${mocks.slice(-5).map(m => m.score).join(" → ")}` : "", top.length ? `Ошибки: ${top.map(c => c.w).join(", ")}` : ""].filter(Boolean).join("\n");
+      try { await navigator.clipboard.writeText(txt); $("copyrep").textContent = "Скопировано"; } catch (e) { $("copyrep").textContent = "Не удалось скопировать"; }
+    };
+  };
+})();
+
+</script>
+<script data-app>
+// Homework: the teacher picks sections, a due date and a note; items tick off when the student finishes them.
+(function () {
+  const { esc, store } = App;
+  const $ = id => document.getElementById(id);
+  const name = id => (App.SECTIONS.find(s => s.id === id) || {}).name || id;
+  const fmt = d => d ? d.slice(8, 10) + "." + d.slice(5, 7) : "";
+  const LOCK = window.LOCK;
+
+  // In a student's file the homework comes from the file; ticks survive reloads until the teacher issues a new one.
+  if (LOCK && LOCK.homework) {
+    const cur = store.get("homework");
+    if (!cur || cur.hwid !== LOCK.homework.hwid) store.set("homework", LOCK.homework);
+  }
+
+  // Mark a homework item done when its section is finished.
+  const origResults = App.results;
+  App.results = function (S, partial) {
+    const hw = store.get("homework");
+    let just = false;
+    if (hw && !partial && !App.mock) {
+      const it = hw.items.find(x => x.id === S.sec.id && !x.done);
+      if (it) { it.done = true; it.score = App.estimate(S); it.date = App.today(); store.set("homework", hw); just = true; }
+    }
+    origResults(S, partial);
+    if (just) {
+      const left = hw.items.filter(x => !x.done).length;
+      document.querySelector(".res-sum")?.insertAdjacentHTML("afterbegin", `<div class="now" style="background:var(--green-soft);color:var(--green-dark)">✓ Домашнее задание: ${left ? `осталось ${left}` : "всё выполнено!"}</div>`);
+    }
+  };
+
+  function editor() {
+    const hw = store.get("homework") || { items: [], note: "", due: "" };
+    const chosen = new Set(hw.items.map(x => x.id));
+    const opts = App.SECTIONS.filter(s => !s.hidden).concat([{ id: "review", name: "Работа над ошибками" }]);
+    const who = App.currentStudent ? App.currentStudent().name : "";
+    document.getElementById("app").innerHTML = `<div class="res">
+      <div class="res-actions" style="margin-bottom:16px"><button class="btn ghost" id="home">← Все разделы</button></div>
+      <h1 style="font-size:28px;margin:0 0 16px">Домашнее задание${who ? ": " + esc(who) : ""}</h1>
+      <form class="res-card" id="hwf">
+        <h2>Разделы</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:20px">
+          ${opts.map(s => `<label class="opt" style="display:flex;gap:10px;align-items:center;margin:0"><input type="checkbox" id="hw-${s.id}" value="${s.id}" ${chosen.has(s.id) ? "checked" : ""} style="width:20px;height:20px;accent-color:var(--blue)">${esc(s.name)}</label>`).join("")}
+        </div>
+        <h2>Срок</h2>
+        <input type="date" id="hw-due" value="${esc(hw.due || "")}" style="border:2px solid var(--line);border-radius:12px;padding:10px;font:inherit;margin-bottom:20px;background:var(--soft);color:var(--ink)">
+        <h2>Комментарий для ученика</h2>
+        <textarea id="hw-note" rows="3" maxlength="400" placeholder="Например: сделай Read and Complete дважды и выпиши новые слова" style="width:100%;border:2px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:var(--soft);color:var(--ink);margin-bottom:20px">${esc(hw.note || "")}</textarea>
+        <div class="res-actions"><button class="btn green" type="submit">Сохранить</button>${hw.items.length ? `<button class="btn ghost" type="button" id="hw-del">Удалить задание</button>` : ""}</div>
+        <div id="hw-msg" style="color:var(--red-dark);font-weight:700;margin-top:10px"></div>
+      </form></div>`;
+    window.scrollTo(0, 0);
+    $("home").onclick = () => App.hub();
+    if ($("hw-del")) $("hw-del").onclick = () => { store.set("homework", null); App.hub(); };
+    $("hwf").onsubmit = e => {
+      e.preventDefault();
+      const ids = opts.map(s => s.id).filter(id => $("hw-" + id).checked);
+      if (!ids.length) { $("hw-msg").textContent = "Выберите хотя бы один раздел."; return; }
+      const old = new Map(hw.items.map(x => [x.id, x]));
+      store.set("homework", { hwid: "h" + Date.now(), items: ids.map(id => old.get(id) || { id, done: false }), note: $("hw-note").value.trim(), due: $("hw-due").value, created: hw.created || App.today() });
+      App.sound && App.sound("correct");
+      App.hub();
+    };
+  }
+  App.homeworkEditor = editor;
+
+  const origHub = App.hub;
+  App.hub = function () {
+    origHub();
+    const hw = store.get("homework");
+    const anchor = document.querySelector(".hero");
+    if (hw && hw.items.length && anchor) {
+      const done = hw.items.filter(x => x.done).length, all = done === hw.items.length;
+      const late = hw.due && !all && hw.due < App.today();
+      anchor.insertAdjacentHTML("beforebegin", `<section class="res-card" style="border-color:${all ? "#a5ed6e" : "#84d8ff"};background:${all ? "var(--green-soft)" : "var(--card)"}">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+          <h2 style="margin:0">📋 Домашнее задание ${all ? "— выполнено!" : `· ${done} из ${hw.items.length}`}</h2>
+          <span style="font-weight:700;color:${late ? "var(--red-dark)" : "var(--muted)"}">${hw.due ? `${late ? "Срок прошёл: " : "Сдать до "}${fmt(hw.due)}` : ""}</span></div>
+        ${hw.note ? `<div class="rev-tip" style="margin-bottom:12px;font-size:15px">${esc(hw.note)}</div>` : ""}
+        <div style="display:flex;flex-direction:column;gap:8px">${hw.items.map(x => `<button class="opt" data-hw="${x.id}" style="margin:0;display:flex;justify-content:space-between;align-items:center;${x.done ? "border-color:#a5ed6e;background:var(--green-soft)" : ""}">
+          <span>${x.done ? "✅" : "⬜"} ${esc(name(x.id))}</span><span style="color:var(--muted);font-size:14px">${x.done ? `≈${x.score} · ${fmt(x.date)}` : "Начать →"}</span></button>`).join("")}</div>
+        ${all ? `<button class="btn green" id="hw-rep" style="margin-top:12px;padding:8px 14px;font-size:13px">Мои сильные и слабые стороны</button>` : ""}
+        ${LOCK ? "" : `<div class="res-actions" style="margin-top:12px"><button class="btn green" id="hw-export" style="padding:8px 14px;font-size:13px">Скачать файл для ученика</button><button class="btn ghost" id="hw-edit" style="padding:8px 14px;font-size:13px">Изменить задание</button></div><div id="hw-exmsg" style="font-size:14px;color:var(--muted);margin-top:8px"></div>`}</section>`);
+      document.querySelectorAll("[data-hw]").forEach(b => b.onclick = () => b.dataset.hw === "review" ? App.startReview() : App.startSection(b.dataset.hw));
+      if ($("hw-rep")) $("hw-rep").onclick = () => App.report();
+      if (!LOCK) { $("hw-edit").onclick = editor; $("hw-export").onclick = () => App.exportStudent($("hw-export"), $("hw-exmsg")); }
+    }
+    const tools = $("t-mock")?.parentNode;
+    if (tools) tools.insertAdjacentHTML("beforeend", `
+      <button class="task" id="t-report"><span class="task-ico" style="font-size:34px">📈</span><span class="task-body"><span class="task-name">${LOCK ? "Мои сильные и слабые стороны" : "Отчёт по ученику"}</span><span class="task-desc" style="display:block">График ориентира, сильные и слабые стороны, частые ошибки</span></span></button>
+      ${(hw && hw.items.length) || LOCK ? "" : `<button class="task" id="t-hw"><span class="task-ico" style="font-size:34px">📋</span><span class="task-body"><span class="task-name">Задать домашнее задание</span><span class="task-desc" style="display:block">Выберите разделы и срок: ученик увидит их на главной</span></span></button>`}`);
+    if ($("t-report")) $("t-report").onclick = App.report;
+    if ($("t-hw")) $("t-hw").onclick = editor;
+  };
+})();
+
+</script>
+<script data-app>
+// Academic vocabulary by topic: [word, перевод, example sentence].
+window.VOCAB = [
+  { t: "Education", ru: "Образование", w: [
+    ["curriculum", "учебная программа", "The school updated its curriculum to include coding."],
+    ["assessment", "оценивание", "The final assessment counts for half of the grade."],
+    ["acquire", "приобретать (знания)", "Children acquire languages faster than adults."],
+    ["comprehension", "понимание", "Reading comprehension improves with regular practice."],
+    ["tuition", "плата за обучение", "University tuition has risen sharply in recent years."],
+    ["enroll", "зачислять(ся)", "She enrolled in an online business course."],
+    ["discipline", "дисциплина; область знаний", "Psychology is a relatively young discipline."],
+    ["literacy", "грамотность", "Digital literacy is essential in the modern workplace."],
+    ["peer", "сверстник, коллега", "Students often learn a lot from their peers."],
+    ["academic", "академический, учебный", "Her academic performance improved after she joined the club."]] },
+  { t: "Research & Science", ru: "Наука и исследования", w: [
+    ["hypothesis", "гипотеза", "The experiment was designed to test a simple hypothesis."],
+    ["data", "данные", "The researchers collected data from over 2,000 participants."],
+    ["analyze", "анализировать", "Scientists analyzed the samples in the laboratory."],
+    ["evidence", "доказательства", "There is little evidence that the diet works."],
+    ["significant", "значительный, значимый", "The study found a significant difference between the groups."],
+    ["method", "метод", "This method is cheaper and more accurate."],
+    ["conclude", "делать вывод", "The authors concluded that sleep affects memory."],
+    ["phenomenon", "явление", "Northern lights are a natural phenomenon."],
+    ["sample", "выборка, образец", "The sample was too small to draw firm conclusions."],
+    ["indicate", "указывать на", "Early results indicate that the treatment is effective."]] },
+  { t: "Environment", ru: "Экология", w: [
+    ["sustainable", "устойчивый, экологичный", "Cities need sustainable transport solutions."],
+    ["emission", "выброс", "The factory reduced its carbon emissions by 30%."],
+    ["conservation", "охрана природы", "Wildlife conservation requires international cooperation."],
+    ["renewable", "возобновляемый", "Solar and wind are renewable sources of energy."],
+    ["habitat", "среда обитания", "Deforestation destroys the habitat of many species."],
+    ["pollution", "загрязнение", "Air pollution is a serious problem in big cities."],
+    ["consumption", "потребление", "We should reduce our energy consumption at home."],
+    ["drought", "засуха", "The region has suffered from drought for three years."],
+    ["species", "вид (животных, растений)", "Several species are now at risk of extinction."],
+    ["impact", "влияние, воздействие", "Tourism has a huge impact on local ecosystems."]] },
+  { t: "Technology", ru: "Технологии", w: [
+    ["innovation", "инновация", "Innovation is key to the company's success."],
+    ["device", "устройство", "Most teenagers own at least one mobile device."],
+    ["automate", "автоматизировать", "Many routine tasks can now be automated."],
+    ["access", "доступ; получать доступ", "Not everyone has access to fast internet."],
+    ["privacy", "конфиденциальность", "Users are increasingly worried about their privacy online."],
+    ["artificial", "искусственный", "Artificial intelligence is changing many industries."],
+    ["software", "программное обеспечение", "The software needs to be updated regularly."],
+    ["network", "сеть", "Social networks connect people across the world."],
+    ["virtual", "виртуальный", "Virtual meetings became common during the pandemic."],
+    ["efficient", "эффективный", "Electric cars are more efficient than petrol cars."]] }
+];
+
+</script>
+<script data-app>
+// Academic vocabulary, topics 5–8.
+VOCAB.push(
+  { t: "Society", ru: "Общество", w: [
+    ["community", "сообщество", "The library is the heart of our local community."],
+    ["diversity", "разнообразие", "The city is famous for its cultural diversity."],
+    ["inequality", "неравенство", "Income inequality has grown in many countries."],
+    ["generation", "поколение", "The younger generation spends more time online."],
+    ["tradition", "традиция", "Many families keep the tradition of eating together."],
+    ["migration", "миграция", "Migration to cities continues to increase."],
+    ["welfare", "благосостояние, соцобеспечение", "The government spends a lot on social welfare."],
+    ["urban", "городской", "Urban areas often have better public services."],
+    ["isolation", "изоляция, одиночество", "Social isolation can harm mental health."],
+    ["volunteer", "волонтёр; вызываться", "She volunteers at an animal shelter every weekend."]] },
+  { t: "Economy & Work", ru: "Экономика и работа", w: [
+    ["income", "доход", "Half of their income goes on rent."],
+    ["employment", "занятость, работа", "The new factory will create employment for 500 people."],
+    ["invest", "инвестировать", "The company plans to invest in new technology."],
+    ["revenue", "выручка", "Online sales now make up most of the revenue."],
+    ["budget", "бюджет", "We need to stay within our budget."],
+    ["demand", "спрос", "Demand for electric cars is growing quickly."],
+    ["productivity", "производительность", "Short breaks can increase productivity."],
+    ["career", "карьера", "He started his career as a junior designer."],
+    ["negotiate", "вести переговоры", "Workers negotiated a higher salary."],
+    ["entrepreneur", "предприниматель", "Many young entrepreneurs start businesses online."]] },
+  { t: "Health", ru: "Здоровье", w: [
+    ["nutrition", "питание", "Good nutrition is important for growing children."],
+    ["symptom", "симптом", "Fever is a common symptom of the flu."],
+    ["prevent", "предотвращать", "Regular exercise can prevent many diseases."],
+    ["obesity", "ожирение", "Childhood obesity is a growing concern."],
+    ["mental", "психический", "Mental health is just as important as physical health."],
+    ["treatment", "лечение", "The new treatment has fewer side effects."],
+    ["stress", "стресс", "Exams can cause a lot of stress."],
+    ["recover", "выздоравливать", "It took him two weeks to recover from the injury."],
+    ["lifestyle", "образ жизни", "A healthy lifestyle includes enough sleep."],
+    ["chronic", "хронический", "Chronic pain affects millions of people."]] },
+  { t: "Opinion & Argument", ru: "Мнение и аргументация", w: [
+    ["argue", "утверждать, доказывать", "Some experts argue that homework is not useful."],
+    ["perspective", "точка зрения", "It is helpful to see the problem from a different perspective."],
+    ["advantage", "преимущество", "One advantage of online learning is flexibility."],
+    ["drawback", "недостаток", "The main drawback is the high cost."],
+    ["controversial", "спорный", "The new law is highly controversial."],
+    ["justify", "оправдывать, обосновывать", "Can you justify spending so much money on it?"],
+    ["consequently", "следовательно", "He missed the bus; consequently, he was late."],
+    ["nevertheless", "тем не менее", "It was raining. Nevertheless, we went for a walk."],
+    ["whereas", "тогда как", "Some prefer cities, whereas others like the countryside."],
+    ["crucial", "крайне важный", "Practice is crucial for passing the exam."]] }
+);
+
+</script>
+<script data-app>
+// Academic vocabulary: topic list and flashcards. "Не знаю" sends the word to the mistakes deck.
+(function () {
+  const { esc, store } = App;
+  const $ = id => document.getElementById(id);
+  const known = () => store.get("vocab") || {};
+
+  const css = document.createElement("style");
+  css.dataset.inj = "1";
+  css.textContent = `
+  .fc{perspective:1200px;width:100%;max-width:520px;height:280px;cursor:pointer;margin:0 auto 24px}
+  .fc-in{position:relative;width:100%;height:100%;transition:transform .45s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
+  .fc.flip .fc-in{transform:rotateY(180deg)}
+  .fc-f,.fc-b{position:absolute;inset:0;backface-visibility:hidden;border:2px solid var(--line);border-bottom-width:5px;border-radius:20px;background:var(--card);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+  .fc-b{transform:rotateY(180deg);background:var(--blue-soft);border-color:#84d8ff}
+  .fc-w{font-size:40px;font-weight:800}
+  .fc-ru{font-size:24px;font-weight:800;color:var(--blue-dark)}
+  .fc-ex{font-size:17px;color:var(--ink);max-width:42ch}
+  .fc-hint{color:var(--faint);font-size:14px;font-weight:700}
+  .topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+  .vrow{display:flex;justify-content:space-between;gap:10px;border-top:2px solid var(--line);padding:8px 0}
+  @media (prefers-reduced-motion:reduce){.fc-in{transition:none}}`;
+  document.head.appendChild(css);
+
+  function toDeck(w, ru, ex) {
+    const deck = store.get("mistakes") || [];
+    const re = new RegExp("\\b" + w + "\\b", "i");
+    const ctx = re.test(ex) ? ex.replace(re, "____") : "";
+    const c = deck.find(c => c.w.toLowerCase() === w.toLowerCase());
+    if (c) { c.streak = 0; c.misses = (c.misses || 1) + 1; } else deck.push({ w, hint: ru, ctx, streak: 0, misses: 1 });
+    store.set("mistakes", deck);
+  }
+
+  function topics() {
+    const k = known();
+    document.getElementById("app").innerHTML = `<div class="res">
+      <div class="res-actions" style="margin-bottom:16px"><button class="btn ghost" id="home">← Все разделы</button></div>
+      <h1 style="font-size:28px;margin:0 0 6px">Академическая лексика</h1>
+      <p style="color:var(--muted);margin:0 0 20px">Слова, которые часто встречаются в текстах и заданиях DET. Нажмите на карточку, чтобы увидеть перевод и пример.</p>
+      <div class="topics">${VOCAB.map((t, i) => {
+        const n = t.w.filter(([w]) => k[w] === 1).length;
+        return `<button class="task" data-t="${i}" style="flex-direction:column;align-items:stretch;gap:8px"><span class="task-name">${esc(t.t)}</span>
+          <span class="task-desc" style="margin:0">${esc(t.ru)}</span>
+          <span class="task-meta"><span class="bar"><i style="width:${n * 10}%"></i></span><span class="task-count">${n}/${t.w.length}</span></span></button>`;
+      }).join("")}</div></div>`;
+    window.scrollTo(0, 0);
+    $("home").onclick = () => App.hub();
+    document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => cards(+b.dataset.t));
+  }
+
+  function cards(ti) {
+    const t = VOCAB[ti], k = known();
+    const order = t.w.slice().sort((a, b) => (k[a[0]] === 1) - (k[b[0]] === 1));
+    let i = 0, yes = 0, no = [];
+    const show = () => {
+      if (i >= order.length) return finish();
+      const [w, ru, ex] = order[i];
+      document.getElementById("app").innerHTML = `<div class="exam"><div class="ecard" style="min-height:560px">
+        <div class="ehead"><div class="timer"><b style="font-size:18px">${esc(t.t)}</b></div>
+          <div class="ehead-r"><span class="qcount">${i + 1} / ${order.length}</span><button class="close" id="quit" aria-label="Выйти">×</button></div></div>
+        <div class="ebody"><div class="fc" id="fc" tabindex="0" role="button" aria-label="Перевернуть карточку"><div class="fc-in">
+          <div class="fc-f"><div class="fc-w">${esc(w)}</div><div class="fc-hint">нажмите, чтобы перевернуть</div></div>
+          <div class="fc-b"><div class="fc-w" style="font-size:28px">${esc(w)}</div><div class="fc-ru">${esc(ru)}</div><div class="fc-ex">${esc(ex)}</div></div>
+        </div></div>
+        <div class="yn"><button class="btn red" id="no">Не знаю</button><button class="btn green" id="yes">Знаю</button></div></div></div></div>`;
+      const fc = $("fc");
+      const flip = () => { fc.classList.toggle("flip"); App.sound && App.sound("tap"); };
+      fc.onclick = flip; fc.onkeydown = e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); } };
+      $("quit").onclick = topics;
+      $("yes").onclick = () => { const kk = known(); kk[w] = 1; store.set("vocab", kk); yes++; App.sound && App.sound("correct"); i++; show(); };
+      $("no").onclick = () => {
+        if (!fc.classList.contains("flip")) { fc.classList.add("flip"); return; }
+        const kk = known(); kk[w] = 0; store.set("vocab", kk); toDeck(w, ru, ex); no.push(order[i]);
+        App.sound && App.sound("wrong"); i++; show();
+      };
+    };
+    const finish = () => {
+      App.sound && App.sound("finish");
+      if (yes === order.length) App.confetti && App.confetti();
+      document.getElementById("app").innerHTML = `<div class="res">
+        <div class="res-card"><h1 style="font-size:28px;margin:0 0 8px">${esc(t.t)}: готово</h1>
+          <div class="stats"><div class="stat"><b style="color:var(--green-dark)">${yes}</b>знаю</div><div class="stat"><b style="color:var(--red-dark)">${no.length}</b>на повторение</div></div>
+          ${no.length ? `<p style="margin:14px 0 0">Эти слова добавлены в «Работу над ошибками»:</p>${no.map(([w, ru]) => `<div class="vrow"><b>${esc(w)}</b><span style="color:var(--muted)">${esc(ru)}</span></div>`).join("")}` : ""}</div>
+        <div class="res-actions"><button class="btn green" id="again">Ещё раз</button><button class="btn ghost" id="back">Все темы</button><button class="btn ghost" id="home">Все разделы</button></div></div>`;
+      $("again").onclick = () => cards(ti); $("back").onclick = topics; $("home").onclick = () => App.hub();
+    };
+    show();
+  }
+  App.vocab = topics;
+
+  const origHub = App.hub;
+  App.hub = function () {
+    origHub();
+    const tools = $("t-mock")?.parentNode;
+    if (!tools) return;
+    const k = known(), total = VOCAB.reduce((a, t) => a + t.w.length, 0), n = Object.values(k).filter(v => v === 1).length;
+    tools.insertAdjacentHTML("beforeend", `<button class="task" id="t-vocab"><span class="task-ico" style="font-size:34px">📚</span><span class="task-body"><span class="task-name">Академическая лексика</span>
+      <span class="task-desc" style="display:block">${VOCAB.length} тем, ${total} слов с переводом и примерами</span>
+      <span class="task-meta"><span class="bar"><i style="width:${Math.round(n / total * 100)}%"></i></span><span class="task-count">${n}/${total}</span></span></span></button>`);
+    $("t-vocab").onclick = topics;
+  };
+})();
+
+</script>
+<script data-app>
+// Student file: a copy of the whole trainer locked to one student and carrying their homework.
+(function () {
+  // Snapshot of the page source taken before the app renders (injected styles left out).
+  App.capture = function () {
+    const c = document.documentElement.cloneNode(true);
+    c.querySelectorAll("style[data-inj]").forEach(s => s.remove());
+    c.querySelectorAll("script:not([data-app])").forEach(s => s.remove());
+    const app = c.querySelector("#app"); if (app) app.innerHTML = "";
+    App.SRC = "<!doctype html>\n" + c.outerHTML;
+  };
+
+  async function build() {
+    const st = App.currentStudent(), hw = App.store.get("homework");
+    if (hw && !hw.hwid) { hw.hwid = "h" + Date.now(); App.store.set("homework", hw); }
+    const doc = new DOMParser().parseFromString(App.SRC, "text/html");
+    doc.querySelectorAll("script[data-lock]").forEach(s => s.remove());
+    // Scripts published as separate files are inlined so the file works on its own.
+    for (const s of [...doc.querySelectorAll("script[data-app][src]")]) {
+      const r = await fetch(s.getAttribute("src"));
+      if (!r.ok) throw new Error("load " + s.getAttribute("src"));
+      const n = doc.createElement("script"); n.setAttribute("data-app", ""); n.textContent = await r.text();
+      s.replaceWith(n);
+    }
+    const lock = doc.createElement("script");
+    lock.setAttribute("data-app", ""); lock.setAttribute("data-lock", "");
+    lock.textContent = "window.LOCK=" + JSON.stringify({ student: st, homework: hw || null, issued: App.today() }).replace(/</g, "\\u003c") + ";";
+    const first = doc.querySelector("script[data-app]");
+    first.parentNode.insertBefore(lock, first);
+    const t = doc.querySelector("title"); if (t) t.textContent = "DET practice — " + st.name;
+    return { name: `DET practice - ${st.name.replace(/[\\/:*?"<>|]/g, "")}.html`, html: "<!doctype html>\n" + doc.documentElement.outerHTML };
+  }
+
+  App.buildStudentFile = build;
+  App.exportStudent = async function (btn, msg) {
+    btn.disabled = true; msg.textContent = "Готовлю файл…";
+    try {
+      const { name, html } = await build();
+      const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+      if (dl) {
+        try { await dl.save({ filename: name, data: html }); msg.textContent = `Файл «${name}» сохранён. Отправьте его ученику.`; }
+        catch (e) { msg.textContent = e.code === "declined" ? "Сохранение отменено." : "Не удалось сохранить файл здесь. Откройте тренажёр из файла и попробуйте там."; }
+      } else {
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+        const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        msg.textContent = `Файл «${name}» скачан. Отправьте его ученику.`;
+      }
+    } catch (e) {
+      msg.textContent = "Не удалось собрать файл: " + (e.message || e);
+    } finally { btn.disabled = false; }
+  };
+})();
+
+</script>
+<script data-app>
+// "Сильные и слабые стороны" card on every section's results page.
+(function () {
+  const { esc } = App;
+  const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+  const low = s => String(s || "").toLowerCase().replace(/_/g, "");
+  function lev(a, b) {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  }
+
+  function analyze(S) {
+    const good = [], bad = [], L = S.log, id = S.sec.id;
+
+    // Accuracy by difficulty level, for sections graded right/wrong.
+    const graded = L.filter(e => typeof e.ok === "boolean");
+    if (graded.length >= 4) {
+      const by = {};
+      graded.forEach(e => { (by[e.level] = by[e.level] || [0, 0])[1]++; if (e.ok) by[e.level][0]++; });
+      const lv = Object.keys(by).map(Number).sort();
+      const sure = lv.filter(l => by[l][1] >= 2 && by[l][0] / by[l][1] >= 0.75);
+      const hard = lv.filter(l => by[l][1] >= 2 && by[l][0] / by[l][1] < 0.5);
+      if (sure.length) good.push(`Уверенно решаете задания уровня ${sure.join(", ")} (${sure.map(l => `${by[l][0]} из ${by[l][1]}`).join(", ")}).`);
+      if (hard.length) bad.push(`Уровень ${hard.join(", ")} пока сложен (${hard.map(l => `${by[l][0]} из ${by[l][1]}`).join(", ")}).`);
+    }
+
+    if (id === "select") {
+      const real = L.filter(e => e.real), fake = L.filter(e => !e.real);
+      const r = real.filter(e => e.ok).length, f = fake.filter(e => e.ok).length, to = L.filter(e => e.timeout).length;
+      if (real.length) (r / real.length >= 0.8 ? good : bad).push(r / real.length >= 0.8
+        ? `Хорошо узнаёте настоящие слова: ${r} из ${real.length}.`
+        : `Не узнали ${real.length - r} из ${real.length} настоящих слов — нужен словарный запас.`);
+      if (fake.length) (f / fake.length >= 0.8 ? good : bad).push(f / fake.length >= 0.8
+        ? `Не попадаетесь на выдуманные слова: ${f} из ${fake.length}.`
+        : `Приняли ${fake.length - f} выдуманных слов за настоящие — отвечайте «Yes», только если уверены.`);
+      (to ? bad : good).push(to ? `Не успели ответить ${to} раз(а) — решайте быстрее.` : "Укладываетесь во время.");
+    }
+
+    if (id === "blanks" || id === "review") {
+      const wrong = L.filter(e => !e.ok);
+      const spell = wrong.filter(e => low(e.you).length >= low(e.right).length - 1 && lev(low(e.you), low(e.right)) <= 2);
+      const ok = L.length - wrong.length;
+      if (ok / L.length >= 0.7) good.push(`Правильно дописали ${ok} из ${L.length} слов — хорошо понимаете контекст.`);
+      if (spell.length) bad.push(`Орфография: слово угадано, но с ошибкой (${spell.map(e => esc(e.right)).join(", ")}).`);
+      else if (ok) good.push("Орфографических ошибок нет.");
+      if (wrong.length - spell.length) bad.push(`Не вспомнили слово: ${wrong.filter(e => !spell.includes(e)).map(e => esc(e.right)).join(", ")}.`);
+    }
+
+    if (id === "ctest") {
+      const items = L.flatMap(e => e.items), short = items.filter(x => x.w.length <= 4), long = items.filter(x => x.w.length >= 7);
+      const s = short.filter(x => x.ok).length, lg = long.filter(x => x.ok).length;
+      if (short.length) (s / short.length >= 0.7 ? good : bad).push(s / short.length >= 0.7 ? `Короткие слова (the, will, many…): ${s} из ${short.length}.` : `Короткие служебные слова: только ${s} из ${short.length} — это лёгкие баллы, не пропускайте их.`);
+      if (long.length) (lg / long.length >= 0.6 ? good : bad).push(lg / long.length >= 0.6 ? `Длинные слова: ${lg} из ${long.length} — хороший словарный запас.` : `Длинные слова: ${lg} из ${long.length} — учите лексику по темам.`);
+    }
+
+    if (id === "ireading") {
+      const gaps = L.flatMap(e => e.gaps), qs = L.flatMap(e => e.qs), g = gaps.filter(x => x.ok).length;
+      (g / gaps.length >= 0.7 ? good : bad).push(`Слова в пропусках: ${g} из ${gaps.length} (${pct(g, gaps.length)}%).`);
+      const kind = { idea: "главную мысль", detail: "детали", title: "заголовок" };
+      Object.keys(kind).forEach(k => {
+        const q = qs.filter(x => x.type === k); if (!q.length) return;
+        const n = q.filter(x => x.ok).length;
+        (n === q.length ? good : bad).push(`Вопросы на ${kind[k]}: ${n} из ${q.length}.`);
+      });
+    }
+
+    if (["photo", "wsample", "iwriting"].includes(id)) {
+      const W = L.filter(e => e.m), words = W.reduce((a, e) => a + e.m.words, 0);
+      const target = W.reduce((a, e) => a + e.target, 0), links = [...new Set(W.flatMap(e => e.m.links))];
+      const avg = W.reduce((a, e) => a + e.m.avg, 0) / (W.length || 1), ttr = W.reduce((a, e) => a + e.m.ttr, 0) / (W.length || 1);
+      (words >= target ? good : bad).push(words >= target ? `Достаточный объём: ${words} слов при цели ${target}.` : `Мало текста: ${words} слов при цели ${target}.`);
+      (links.length >= 3 ? good : bad).push(links.length >= 3 ? `Используете связки: ${esc(links.slice(0, 5).join(", "))}.` : "Почти нет связок (however, because, for example…).");
+      (avg >= 11 ? good : bad).push(avg >= 11 ? "Пишете развёрнутые предложения." : "Предложения слишком короткие — соединяйте их.");
+      if (ttr >= 0.6) good.push("Разнообразная лексика, мало повторов.");
+      const reps = [...new Set(W.flatMap(e => e.m.repeats.map(([w]) => w)))];
+      if (reps.length) bad.push(`Повторяются слова: ${esc(reps.slice(0, 4).join(", "))}.`);
+      const iss = [...new Set(W.flatMap(e => e.m.issues))];
+      if (iss.length) bad.push(`Оформление: ${esc(iss[0])}`);
+    }
+
+    return { good, bad };
+  }
+
+  const origResults = App.results;
+  App.results = function (S, partial) {
+    origResults(S, partial);
+    if (!S.log.length) return;
+    const { good, bad } = analyze(S);
+    const cards = document.querySelectorAll(".res > .res-card");
+    if (!cards.length) return;
+    const list = (items, color, empty) => items.length
+      ? `<ul class="rec">${items.map(t => `<li style="background:${color}">${t}</li>`).join("")}</ul>`
+      : `<div style="color:var(--muted)">${empty}</div>`;
+    cards[0].insertAdjacentHTML("afterend", `<div class="res-card"><h2>Сильные и слабые стороны</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+        <div style="min-width:0"><h3 style="margin:0 0 10px;font-size:16px;color:var(--green-dark)">💪 Получается</h3>${list(good, "var(--green-soft)", partial ? "Пока мало данных — пройдите раздел до конца." : "В этой попытке сильных сторон не видно. Это нормально: пройдите раздел ещё раз.")}</div>
+        <div style="min-width:0"><h3 style="margin:0 0 10px;font-size:16px;color:var(--red-dark)">🎯 Над чем поработать</h3>${list(bad, "var(--red-soft)", "Слабых мест в этой попытке не видно.")}</div>
+      </div></div>`);
+  };
+})();
+
+</script>
+<script data-app>App.capture(); App.start()</script>
+
+</body>
+</html>
